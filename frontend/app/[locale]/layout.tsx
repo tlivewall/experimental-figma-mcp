@@ -31,7 +31,7 @@ export default async function RootLayout({ children, params: asyncParams }: { ch
   return (
     <html lang={loc}>
       <body>
-        <div className="lg:pb-[477px] pb-[589px] h-full">
+        <div>
           <AppStateProvider>
             <Providers>{children}</Providers>
           </AppStateProvider>

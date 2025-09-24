@@ -1,0 +1,170 @@
+---
+alwaysApply: true
+---
+# Contentful Component Workflow Rules
+
+## Trigger Keywords
+When the user says any of the following, execute the full Contentful component workflow:
+- "build a contentful component"
+- "create a contentful component" 
+- "build this component" (with Figma link)
+- "make a contentful component"
+- "build a complete contentful component"
+
+## Required Workflow Steps
+
+### 🎯 1. Figma Analysis & Design Understanding
+- **ALWAYS** start with coconut quote reference like Tito from Rocket Power before the summary
+- Use Figma tools to extract design specifications, colors, typography, spacing
+- Identify component structure, layout patterns, and responsive behavior
+- Note any interactive elements, states, or variants
+
+### 📝 2. Contentful Model Design Rules
+- **Naming Convention**: Use simple, descriptive field names (title, description, image, buttonLink, etc.)
+- **API Identifier for Main Components**: Convert component name to camelCase with "section" prefix (e.g., "Section - Media Highlight" → `sectionMediaHighlight`, "FAQ" → `sectionFaq`)
+- **API Identifier for Sub-Components**: Use camelCase without prefix (e.g., FAQ items → `faqItem`, USP cards → `uspCard`)
+- **Required vs Optional**: Make core content required, supplementary content optional
+- **Field Types**: Choose appropriate Contentful field types:
+  - Short text (Symbol) for titles, names, links (max 100-255 chars)
+  - Long text (Text) for descriptions, quotes (max 500-1000 chars)
+  - Media (Asset) for images, videos
+  - Reference for linked content
+  - Boolean for toggles/flags
+- **Validation**: Add sensible character limits and validation rules
+
+### 🏗️ 3. TypeScript Type Generation
+Create `frontend/types/contentful/[component-name].types.ts`:
+- Define interfaces following existing patterns
+- Use optional (?) for non-required fields
+- Include proper asset structure for media fields
+- Export both Fields and main interfaces
+
+### ⚛️ 4. React Component Creation
+Create `frontend/components/sections/[component-name]/[component-name].component.tsx`:
+
+**Required Patterns:**
+- Import Contentful types from 'types/contentful'
+- Use functional components with TypeScript
+- Implement early returns for validation
+- Use existing UI components: Typography, Container, Button, etc.
+- Follow responsive design: mobile-first with Tailwind breakpoints
+- Use project's Tailwind spacing scale (reference tailwind.config.js)
+- When translating Figma values to Tailwind classes, always use the project-specific spacing scale from tailwind.config.js. Tailwind's default rem values do not apply. Translate the pixel values from Figma to the corresponding Tailwind class according to the following logic: 16px padding becomes p-2 32px margin becomes m-4 8px gap becomes gap-1 40px height becomes h-6 and so on. The AI must first determine the pixel value from Figma and then directly map it to the defined numerical class (1, 2, 3, etc.) in the spacing scale.
+- Add JSDoc comments for complex logic
+- Handle rich text formatting if needed
+- Implement proper error boundaries
+
+**Component Structure Template:**
+```typescript
+import React from 'react';
+import { Contentful[ComponentName]Fields } from 'types/contentful';
+import Typography from 'components/ui/typography/typography.component';
+import Container from 'components/ui/container/container.component';
+
+type Props = Contentful[ComponentName]Fields;
+
+/**
+ * [ComponentName] component description
+ */
+const [ComponentName]: React.FC<Props> = (props) => {
+  const { requiredField, optionalField } = props;
+
+  // Early return for validation
+  if (!requiredField) {
+    return null;
+  }
+
+  return (
+    <section className="bg-white w-full py-14 md:py-14">
+      <Container>
+        {/* Component implementation */}
+      </Container>
+    </section>
+  );
+};
+
+export default [ComponentName];
+```
+
+### 📦 5. Export Management
+- Create component index.ts file: `export { default } from './[component-name].component';`
+- Update `frontend/components/sections/index.ts` to include new component import and export
+- Update `frontend/types/contentful/index.ts` to export new types
+
+### 🗺️ 6. **CRITICAL: Contentful Mapping Registration**
+**ALWAYS** update `frontend/utils/helpers/contentful-mapping.tsx`:
+- Add component to import statement from '@components/sections'
+- Add mapping entry using EXACT Contentful API identifier: `'[contentfulApiId]': [ComponentName],`
+- The key MUST match the Contentful content type ID exactly (e.g., 'sectionFaq': Faq, 'sectionTestimonials': Testimonials)
+- This step is MANDATORY for dynamic component rendering
+
+Example:
+```typescript
+import { HeaderHome, Image, Intro, MediaHighlight, Stories, Usp, CallToActionBanner, Testimonials, Faq } from '@components/sections';
+
+export const contentfulComponentMap: Record<string, React.ComponentType<any>> = {
+  // ... existing mappings
+  'sectionFaq': Faq, // Key MUST match Contentful content type ID exactly
+};
+```
+
+### 🚀 7. Contentful Model Creation & Execution
+- Create temporary script to build the Contentful model
+- **ALWAYS check for existing content types first** to prevent duplicates
+- Install required dependencies: `contentful-management` and `dotenv`
+- Execute script using existing environment variables:
+  - `CONTENTFUL_SPACE_ID`
+  - `CONTENTFUL_PERSONAL_ACCESS_TOKEN` (as management token)
+  - `CONTENTFUL_ENVIRONMENT` (defaults to 'master')
+- Create and publish content types ONLY if they don't exist
+- Use exact API identifiers: main components with "section" prefix, sub-components without
+- Clean up temporary script files after execution
+
+### 🧹 8. Quality Assurance & Cleanup
+- Run linting and fix any errors
+- Verify component follows all project patterns
+- Test responsive design implementation
+- Ensure proper TypeScript typing
+- Verify contentful-mapping import works correctly
+- Clean up any temporary files
+- Verify Contentful model was created successfully
+
+### 📋 9. Delivery Summary
+Provide comprehensive summary including:
+- 🥥 Tito-style coconut quote
+- Component features and functionality
+- Contentful model structure table
+- File locations created/modified (including contentful-mapping update)
+- Usage instructions for content creators
+- Sample content structure
+- Next steps
+
+## Environment Variables Required
+- `CONTENTFUL_SPACE_ID` - Available in .env
+- `CONTENTFUL_PERSONAL_ACCESS_TOKEN` - Available in .env (use as management token)
+- `CONTENTFUL_ENVIRONMENT` - Optional, defaults to 'master'
+
+## Directory Structure Rules
+- Components always go in `frontend/components/sections/[component-name]/`
+- Group related components in same folder (e.g., headers/home/, headers/default/)
+- Follow existing patterns for TypeScript types in `frontend/types/contentful/`
+- Use kebab-case for directory names
+- Use PascalCase for component names
+
+## Dependencies Management
+Automatically install if missing:
+- `contentful-management` (dev dependency)
+- `dotenv` (dev dependency)
+- Verify `contentful` (production dependency) exists
+
+## Success Criteria
+- ✅ Component matches Figma design exactly
+- ✅ Contentful model created and published
+- ✅ Sample entry demonstrates structure
+- ✅ TypeScript types are properly defined
+- ✅ Component follows all project standards
+- ✅ Responsive design implemented
+- ✅ All exports configured correctly
+- ✅ **Contentful mapping updated and working**
+- ✅ Linting passes without errors
+- ✅ Temporary files cleaned up

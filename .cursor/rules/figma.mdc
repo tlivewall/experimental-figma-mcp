@@ -1,0 +1,79 @@
+---
+description: Figma MCP Rules For Next.js
+alwaysApply: true
+---
+
+## Trigger Keywords
+When the user says any of the following, execute the full Figma MCP Rules:
+- "build a figma component"
+- "create a figma component"
+- "build this component" (with Figma link)
+- "make a figma component"
+- "build a complete figma component"
+
+## Required Workflow Steps
+
+### 🎯 1. Figma Analysis & Design Understanding
+- Use Figma tools to extract design specifications, colors, typography, spacing
+- Identify component structure, layout patterns, and responsive behavior
+- Note any interactive elements, states, or variants
+- Identify if the component is a main component of a sub-component
+- Identify if the component already exists in the project
+- Idenfiry if linked figma files contain a singular component or a group of components. If it is a group of components, ask the user if the component is a main component or a sub-component. If it is a singular component, ask the user if the component is a main component or a sub-component.
+- When multiple files are linked and there is no context given, analyse if the file has a clear structure on what the component is. If there are smaller components within the file, create a sub-component or if needed create a ui component that will be used in the main component.
+
+
+### 📝 2. Figma Component Design Rules
+- **Naming Convention**: Use simple, descriptive component names (e.g., "Header Home", "Image", "Intro", "Media Highlight", "Stories", "Usp", "Call To Action Banner", "Testimonials", "Faq")
+- **Naming Convention for Sub-Components**: Use simple, descriptive sub-component names. A news card can be categorized under the folder 'card' and be called 'news-card'.
+- **Component Structure**: Follow existing component structure patterns in the project and if the component is a sub-component, add it to the sub-component folder. Main components go in the ./components/sections folder. and subcomponent go in the ./components/sections/[component-name]/components folder. When the component is considered an UI component, add it to the ./components/ui folder. Ui component are buttons, inputs, etc.
+- **Component Types**:
+  - Main Component
+  - Sub-Component
+  - UI Component
+
+### 📝 3. TypeScript Type Generation
+- Create `frontend/types/figma/[component-name].types.ts`:
+- Define interfaces following existing patterns
+- Use optional (?) for non-required fields
+- Include proper asset structure for media fields
+- Export both Fields and main interfaces
+
+### 📝 4. React Component Creation
+- Create `frontend/components/sections/[component-name]/[component-name].component.tsx`:
+- Use existing UI components: Typography, Container, Button, etc.
+- Follow responsive design: mobile-first with Tailwind 
+- Each component is placed in a separate file; no default export.
+- When using a link always import the Link component from next/link and add the import at the top of the file.
+- If it is unclear if a component has interactive elements, ask the user of the component is interactive and what the interactions should be. Do this only when there are visible interactions in the Figma file.
+
+### 📦 5. Export Management
+- Create component index.ts file: `export { default } from './[component-name].component';`
+
+
+**Tailwind**
+- Use project's Tailwind spacing scale (reference tailwind.config.js)
+- When translating Figma values to Tailwind classes, always use the project-specific spacing scale from tailwind.config.js. Tailwind's default rem values do not apply. Translate the pixel values from Figma to the corresponding Tailwind class according to the following logic: 16px padding becomes p-2 32px margin becomes m-4 8px gap becomes gap-1 40px height becomes h-6 and so on. The AI must first determine the pixel value from Figma and then directly map it to the defined numerical class (1, 2, 3, etc.) in the spacing scale.
+
+**UI Components**
+- Use existing UI components: Typography, Container, Button, etc.
+- When using a button, always use the button type="button" and add the import at the top of the file.
+
+
+### 📋 6. Delivery Summary
+- Summarize the component in a few sentences
+- Include the Figma link
+- Include the component name
+- Include the component type
+- Include the component structure
+- Include the component types
+- Include the component types
+
+**Workflow checklist**
+- [ ] Figma Analysis & Design Understanding
+- [ ] Figma Component Design Rules
+- [ ] TypeScript Type Generation
+- [ ] React Component Creation
+- [ ] Export Management
+- [ ] Delivery Summary
+- [ ] Workflow checklist
