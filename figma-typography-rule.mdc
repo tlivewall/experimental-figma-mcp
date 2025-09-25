@@ -1,0 +1,190 @@
+---
+title: Figma Component Typography Implementation Rule
+description: Comprehensive typography guidelines for Figma-to-code components
+---
+
+## 🎨 Typography Implementation Rules
+
+### 1. Typography Component Usage
+**ALWAYS** use the project's Typography component for ALL text elements:
+```tsx
+import Typography from 'components/ui/typography/typography.component';
+
+// ✅ Correct Usage
+<Typography 
+  type="h3" 
+  size="body16" 
+  weight="semibold" 
+  color="black"
+  className="mb-1"
+>
+  Title Text
+</Typography>
+
+// ❌ Never do this
+<h3 className="text-lg font-bold text-black mb-1">Title Text</h3>
+```
+
+### 2. Typography Variants System
+
+#### **Size Naming Convention**
+- Use `body[size]` format for content sizes: `body14`, `body16`, `body18`, etc.
+- Use semantic names for headers: `h1`, `h2`, `h3`, etc.
+- Always reference pixel values from Figma designs
+
+#### **Adding New Typography Variants**
+When Figma specifies typography not in the project:
+
+1. **Add to typography.variants.data.tsx**:
+```tsx
+size: {
+  // ... existing sizes
+  body14: "md:text-[14px] md:leading-[22px]",  // Desktop
+  body16: "md:text-[16px] md:leading-[24px]",  // Desktop
+},
+mobileSize: {
+  // ... existing sizes  
+  body14: "text-[14px] leading-[22px]",        // Mobile
+  body16: "text-[16px] leading-[24px]",        // Mobile
+},
+```
+
+2. **Add colors from Figma specs**:
+```tsx
+color: {
+  // ... existing colors
+  black: "text-[#000017]",     // Figma: Neutraal/Zwart/Zwart
+  gray: "text-[#666674]",      // Figma: Neutraal/Zwart/Paragraph text
+},
+```
+
+3. **Add weights as needed**:
+```tsx
+weight: {
+  // ... existing weights
+  semibold: "font-semibold",   // For Figma SemiBold (600)
+},
+```
+
+### 3. Figma Typography Mapping
+
+#### **Standard Figma → Component Mapping**
+| Figma Specification | Component Implementation |
+|-------------------|-------------------------|
+| `Font(size: 16, weight: 600, lineHeight: 24)` | `size="body16" weight="semibold"` |
+| `Font(size: 14, weight: 400, lineHeight: 22)` | `size="body14" weight="default"` |
+| `Font(size: 16, weight: 400, lineHeight: 24)` | `size="body16" weight="default"` |
+| `Color: #000017` | `color="black"` |
+| `Color: #666674` | `color="gray"` |
+
+#### **Typography Hierarchy Guidelines**
+```tsx
+// Section titles
+<Typography type="h2" size="body16" weight="bold" color="gray">
+  Section Title
+</Typography>
+
+// Item titles  
+<Typography type="h3" size="body16" weight="semibold" color="black">
+  Item Title
+</Typography>
+
+// Descriptions
+<Typography type="p" size="body14" color="gray">
+  Description text
+</Typography>
+
+// CTA buttons (when using Typography)
+<Typography type="span" size="default" weight="bold" color="black" className="text-lg uppercase">
+  Button Text
+</Typography>
+```
+
+### 4. Implementation Checklist
+
+#### **Before Starting Component**
+- [ ] Extract typography specifications from Figma design output
+- [ ] Check if required sizes/weights/colors exist in `typography.variants.data.tsx`
+- [ ] Add missing variants following naming conventions
+
+#### **During Component Creation**
+- [ ] Use Typography component for ALL text elements
+- [ ] Never use inline `className` for typography styles (font-size, font-weight, color)
+- [ ] Always specify `type`, `size`, `weight`, and `color` props
+- [ ] Use semantic HTML elements via `type` prop
+
+#### **Component Review**
+- [ ] No hardcoded text styles in className
+- [ ] All text uses Typography component
+- [ ] Typography props match Figma specifications
+- [ ] Responsive typography works on mobile/desktop
+- [ ] ESLint passes without typography-related warnings
+
+### 5. Common Anti-Patterns to Avoid
+
+❌ **Don't mix Typography component with inline styles**:
+```tsx
+<Typography size="body16" className="text-lg font-bold">  // Conflicting styles
+```
+
+❌ **Don't use invalid variant names**:
+```tsx
+<Typography size="16" weight="medium">  // "16" and "medium" don't exist
+```
+
+❌ **Don't skip Typography component for "simple" text**:
+```tsx
+<span className="text-sm text-gray-600">Simple text</span>  // Should use Typography
+```
+
+❌ **Don't use hardcoded colors instead of design tokens**:
+```tsx
+<Typography color="default" className="text-[#666674]">  // Use color="gray" instead
+```
+
+### 6. Typography Audit Process
+
+When reviewing existing components:
+
+1. **Search for text-related Tailwind classes**: `text-`, `font-`, `leading-`
+2. **Identify Typography component usage gaps**
+3. **Map hardcoded styles to proper Typography variants**
+4. **Add missing variants to `typography.variants.data.tsx`**
+5. **Refactor components to use Typography consistently**
+
+### 7. Error Prevention
+
+#### **ESLint Rules Alignment**
+- Generate unique keys for mapped elements (avoid array indices)
+- Remove unused props like `view` parameter
+- Ensure all Typography props are valid variants
+
+#### **Type Safety**
+- All typography variants must be defined in the cva configuration
+- Import types from `types/Typography.ts` when needed
+- Use proper TypeScript interfaces for component props
+
+### 8. Design System Integration
+
+#### **Figma Design Token Extraction**
+When Figma output specifies:
+```
+Heading 16: Font(family: "Inter Tight", style: SemiBold, size: 16, weight: 600, lineHeight: 24)
+```
+
+Translate to:
+```tsx
+// 1. Add to variants if missing
+body16: "md:text-[16px] md:leading-[24px]"
+semibold: "font-semibold"
+
+// 2. Use in component
+<Typography type="h3" size="body16" weight="semibold" color="black">
+```
+
+#### **Consistency Enforcement**
+- All components should use identical Typography patterns
+- Color values should match Figma design tokens exactly
+- Spacing and sizing should align with project's Tailwind config
+
+This typography system ensures design consistency, maintainability, and perfect Figma-to-code fidelity across all components.

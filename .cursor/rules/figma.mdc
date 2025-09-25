@@ -31,6 +31,10 @@ When the user says any of the following, execute the full Figma MCP Rules:
   - Main Component
   - Sub-Component
   - UI Component
+- **Typography**: Use the typography component from the ./components/ui/typography/typography.component.tsx file.
+  - When using the typography component, always use the type, size, color, weight, family and className props.
+  - Sizes are defined in the typography.variants.data.tsx file.
+  - If a size is not defined, create a new size based on the font size. We always name the variation body[size] eg. body14 for 14px.
 
 ### 📝 3. TypeScript Type Generation
 - Create `frontend/types/figma/[component-name].types.ts`:
@@ -77,3 +81,379 @@ When the user says any of the following, execute the full Figma MCP Rules:
 - [ ] Export Management
 - [ ] Delivery Summary
 - [ ] Workflow checklist
+
+## 🎨 Typography Implementation Rules
+
+### 1. Typography Component Usage
+**ALWAYS** use the project's Typography component for ALL text elements:
+```tsx
+import Typography from 'components/ui/typography/typography.component';
+
+// ✅ Correct Usage
+<Typography 
+  type="h3" 
+  size="body16" 
+  weight="semibold" 
+  color="black"
+  className="mb-1"
+>
+  Title Text
+</Typography>
+
+// ❌ Never do this
+<h3 className="text-lg font-bold text-black mb-1">Title Text</h3>
+```
+
+### 2. Typography Variants System
+
+#### **Size Naming Convention**
+- Use `body[size]` format for content sizes: `body14`, `body16`, `body18`, etc.
+- Use semantic names for headers: `h1`, `h2`, `h3`, etc.
+- Always reference pixel values from Figma designs
+
+#### **Adding New Typography Variants**
+When Figma specifies typography not in the project:
+
+1. **Add to typography.variants.data.tsx**:
+```tsx
+size: {
+  // ... existing sizes
+  body14: "md:text-[14px] md:leading-[22px]",  // Desktop
+  body16: "md:text-[16px] md:leading-[24px]",  // Desktop
+},
+mobileSize: {
+  // ... existing sizes  
+  body14: "text-[14px] leading-[22px]",        // Mobile
+  body16: "text-[16px] leading-[24px]",        // Mobile
+},
+```
+
+2. **Add colors from Figma specs**:
+```tsx
+color: {
+  // ... existing colors
+  black: "text-[#000017]",     // Figma: Neutraal/Zwart/Zwart
+  gray: "text-[#666674]",      // Figma: Neutraal/Zwart/Paragraph text
+},
+```
+
+3. **Add weights as needed**:
+```tsx
+weight: {
+  // ... existing weights
+  semibold: "font-semibold",   // For Figma SemiBold (600)
+},
+```
+
+### 3. Figma Typography Mapping
+
+#### **Standard Figma → Component Mapping**
+| Figma Specification | Component Implementation |
+|-------------------|-------------------------|
+| `Font(size: 16, weight: 600, lineHeight: 24)` | `size="body16" weight="semibold"` |
+| `Font(size: 14, weight: 400, lineHeight: 22)` | `size="body14" weight="default"` |
+| `Font(size: 16, weight: 400, lineHeight: 24)` | `size="body16" weight="default"` |
+| `Color: #000017` | `color="black"` |
+| `Color: #666674` | `color="gray"` |
+
+#### **Typography Hierarchy Guidelines**
+```tsx
+// Section titles
+<Typography type="h2" size="body16" weight="bold" color="gray">
+  Section Title
+</Typography>
+
+// Item titles  
+<Typography type="h3" size="body16" weight="semibold" color="black">
+  Item Title
+</Typography>
+
+// Descriptions
+<Typography type="p" size="body14" color="gray">
+  Description text
+</Typography>
+
+// CTA buttons (when using Typography)
+<Typography type="span" size="default" weight="bold" color="black" className="text-lg uppercase">
+  Button Text
+</Typography>
+```
+
+### 4. Implementation Checklist
+
+#### **Before Starting Component**
+- [ ] Extract typography specifications from Figma design output
+- [ ] Check if required sizes/weights/colors exist in `typography.variants.data.tsx`
+- [ ] Add missing variants following naming conventions
+
+#### **During Component Creation**
+- [ ] Use Typography component for ALL text elements
+- [ ] Never use inline `className` for typography styles (font-size, font-weight, color)
+- [ ] Always specify `type`, `size`, `weight`, and `color` props
+- [ ] Use semantic HTML elements via `type` prop
+
+#### **Component Review**
+- [ ] No hardcoded text styles in className
+- [ ] All text uses Typography component
+- [ ] Typography props match Figma specifications
+- [ ] Responsive typography works on mobile/desktop
+- [ ] ESLint passes without typography-related warnings
+
+### 5. Common Anti-Patterns to Avoid
+
+❌ **Don't mix Typography component with inline styles**:
+```tsx
+<Typography size="body16" className="text-lg font-bold">  // Conflicting styles
+```
+
+❌ **Don't use invalid variant names**:
+```tsx
+<Typography size="16" weight="medium">  // "16" and "medium" don't exist
+```
+
+❌ **Don't skip Typography component for "simple" text**:
+```tsx
+<span className="text-sm text-gray-600">Simple text</span>  // Should use Typography
+```
+
+❌ **Don't use hardcoded colors instead of design tokens**:
+```tsx
+<Typography color="default" className="text-[#666674]">  // Use color="gray" instead
+```
+
+### 6. Typography Audit Process
+
+When reviewing existing components:
+
+1. **Search for text-related Tailwind classes**: `text-`, `font-`, `leading-`
+2. **Identify Typography component usage gaps**
+3. **Map hardcoded styles to proper Typography variants**
+4. **Add missing variants to `typography.variants.data.tsx`**
+5. **Refactor components to use Typography consistently**
+
+### 7. Error Prevention
+
+#### **ESLint Rules Alignment**
+- Generate unique keys for mapped elements (avoid array indices)
+- Remove unused props like `view` parameter
+- Ensure all Typography props are valid variants
+
+#### **Type Safety**
+- All typography variants must be defined in the cva configuration
+- Import types from `types/Typography.ts` when needed
+- Use proper TypeScript interfaces for component props
+
+### 8. Design System Integration
+
+#### **Figma Design Token Extraction**
+When Figma output specifies:
+```
+Heading 16: Font(family: "Inter Tight", style: SemiBold, size: 16, weight: 600, lineHeight: 24)
+```
+
+Translate to:
+```tsx
+// 1. Add to variants if missing
+body16: "md:text-[16px] md:leading-[24px]"
+semibold: "font-semibold"
+
+// 2. Use in component
+<Typography type="h3" size="body16" weight="semibold" color="black">
+```
+
+#### **Consistency Enforcement**
+- All components should use identical Typography patterns
+- Color values should match Figma design tokens exactly
+- Spacing and sizing should align with project's Tailwind config
+
+This typography system ensures design consistency, maintainability, and perfect Figma-to-code fidelity across all components.
+
+ # 🚨 CRITICAL: Custom Tailwind Spacing Scale Rule
+
+## ⚠️ **NEVER USE DEFAULT TAILWIND SPACING ASSUMPTIONS**
+
+This project uses a **CUSTOM spacing scale** that differs from Tailwind's defaults. You MUST always reference the project's `tailwind.config.js` for accurate spacing conversions.
+
+### 📏 **PROJECT'S CUSTOM SPACING SCALE**
+
+```js
+// FROM: tailwind.config.js
+spacing: {
+  px: '1px',
+  0: '0',
+  0.5: '4px',    // NOT 2px (Tailwind default)
+  1: '8px',      // NOT 4px (Tailwind default) 
+  1.5: '12px',   // NOT 6px (Tailwind default)
+  2: '16px',     // SAME as Tailwind default
+  2.5: '20px',   // NOT 10px (Tailwind default)
+  3: '24px',     // NOT 12px (Tailwind default) 
+  3.5: '28px',   // NOT 14px (Tailwind default)
+  4: '32px',     // NOT 16px (Tailwind default)
+  5: '36px',     // NOT 20px (Tailwind default)
+  6: '40px',     // NOT 24px (Tailwind default)
+  7: '48px',     // NOT 28px (Tailwind default)
+  8: '56px',     // NOT 32px (Tailwind default)
+  9: '64px',     // NOT 36px (Tailwind default)
+  10: '72px',    // NOT 40px (Tailwind default)
+  11: '80px',    // NOT 44px (Tailwind default)
+  12: '96px',    // SAME as Tailwind default
+  14: '128px'    // NOT 56px (Tailwind default)
+}
+```
+
+### 🎯 **FIGMA TO TAILWIND CONVERSION PROCESS**
+
+#### **Step 1: Extract Pixel Values from Figma**
+Always get exact pixel values from Figma design specifications:
+- Icon sizes: 24px, 32px, 48px, 64px, etc.
+- Spacing: padding, margin, gap values
+- Dimensions: width, height, min/max values
+
+#### **Step 2: MANDATORY Custom Scale Lookup**
+**NEVER assume standard Tailwind mappings.** Always use this conversion table:
+
+| Figma (px) | Custom Class | ❌ Wrong (Default) | Why Wrong |
+|------------|-------------|------------------|-----------|
+| 4px | `0.5` | `1` | Default `1` = 4px, but custom `1` = 8px |
+| 8px | `1` | `2` | Default `2` = 8px, but custom `2` = 16px |
+| 12px | `1.5` | `3` | Default `3` = 12px, but custom `3` = 24px |
+| 16px | `2` | `4` | Default `4` = 16px, but custom `4` = 32px |
+| 20px | `2.5` | `5` | Default `5` = 20px, but custom `5` = 36px |
+| 24px | `3` | `6` | Default `6` = 24px, but custom `6` = 40px |
+| 28px | `3.5` | `7` | Default `7` = 28px, but custom `7` = 48px |
+| 32px | `4` | `8` | Default `8` = 32px, but custom `8` = 56px |
+| 36px | `5` | `9` | Default `9` = 36px, but custom `9` = 64px |
+| 40px | `6` | `10` | Default `10` = 40px, but custom `10` = 72px |
+| 48px | `7` | `12` | Default `12` = 48px, but custom `12` = 96px |
+| 56px | `8` | `14` | Default `14` = 56px, but custom `14` = 128px |
+| 64px | `9` | `16` | Default `16` = 64px, custom has no `16` |
+| 72px | `10` | `18` | Default `18` = 72px, custom has no `18` |
+| 80px | `11` | `20` | Default `20` = 80px, custom has no `20` |
+| 96px | `12` | `24` | Default `24` = 96px, custom has no `24` |
+| 128px | `14` | `32` | Default `32` = 128px, custom has no `32` |
+
+#### **Step 3: Double-Check Common Cases**
+
+**Icon Sizes (Most Common Errors):**
+```tsx
+// ✅ CORRECT conversions
+<div className="w-3 h-3">     // 24px icons (chevrons, small icons)
+<div className="w-4 h-4">     // 32px icons (mobile app icons)  
+<div className="w-6 h-6">     // 40px icons (medium icons)
+<div className="w-7 h-7">     // 48px icons (large mobile icons)
+<div className="w-9 h-9">     // 64px icons (desktop app icons)
+
+// ❌ WRONG (using Tailwind defaults)
+<div className="w-6 h-6">     // This is 40px, NOT 24px!
+<div className="w-8 h-8">     // This is 56px, NOT 32px!
+<div className="w-12 h-12">   // This is 96px, NOT 48px!
+<div className="w-16 h-16">   // This doesn't exist in custom scale!
+```
+
+**Spacing Values:**
+```tsx
+// ✅ CORRECT conversions  
+<div className="p-2">         // 16px padding
+<div className="gap-2">       // 16px gap
+<div className="m-3">         // 24px margin
+<div className="space-y-3">   // 24px vertical spacing
+
+// ❌ WRONG (using Tailwind defaults)
+<div className="p-4">         // This is 32px, NOT 16px!
+<div className="gap-6">       // This is 40px, NOT 24px!
+<div className="m-6">         // This is 40px, NOT 24px!
+```
+
+### 🔧 **IMPLEMENTATION CHECKLIST**
+
+#### **Before Writing Any Spacing Class:**
+- [ ] Extract exact pixel value from Figma design
+- [ ] Look up pixel value in custom spacing scale table
+- [ ] Use the custom scale class number
+- [ ] Verify the conversion is correct
+
+#### **Code Review Questions:**
+- [ ] Did I reference `tailwind.config.js` for spacing conversions?
+- [ ] Are all `w-*`, `h-*`, `p-*`, `m-*`, `gap-*` classes using custom scale?
+- [ ] Did I avoid assuming Tailwind default mappings?
+- [ ] Do the pixel values match the Figma specifications exactly?
+
+#### **Testing:**
+- [ ] Inspect element in browser to verify actual pixel values
+- [ ] Compare rendered size with Figma design side-by-side
+- [ ] Check both mobile and desktop breakpoints
+
+### 📋 **COMMON ERROR PATTERNS TO AVOID**
+
+#### **❌ Default Tailwind Thinking:**
+```tsx
+// WRONG: Assuming default Tailwind scale
+const iconSize = "w-6 h-6"; // Thinking this is 24px (it's 40px!)
+const padding = "p-4";      // Thinking this is 16px (it's 32px!)
+```
+
+#### **✅ Custom Scale Thinking:**
+```tsx
+// CORRECT: Using custom scale lookup
+const iconSize = "w-3 h-3"; // 24px in custom scale
+const padding = "p-2";      // 16px in custom scale
+```
+
+### 🚨 **ERROR ANALYSIS EXAMPLES**
+
+#### **Example 1: Icon Size Error**
+- **Figma**: 64px × 64px app icon
+- **Wrong**: `md:w-12 md:h-12` (96px!)
+- **Correct**: `md:w-9 md:h-9` (64px)
+- **Root Cause**: Used Tailwind default thinking
+
+#### **Example 2: Chevron Icon Error**  
+- **Figma**: 24px × 24px chevron
+- **Wrong**: `w-6 h-6` (40px!)
+- **Correct**: `w-3 h-3` (24px)
+- **Root Cause**: Assumed `w-6` = 24px from defaults
+
+#### **Example 3: Mobile Icon Error**
+- **Figma**: 32px × 32px mobile icon  
+- **Wrong**: `w-8 h-8` (56px!)
+- **Correct**: `w-4 h-4` (32px)
+- **Root Cause**: Used default `w-8` = 32px assumption
+
+### 🎯 **PREVENTION STRATEGY**
+
+#### **Mental Model Shift:**
+1. **NEVER** use mental shortcuts from default Tailwind
+2. **ALWAYS** reference the custom spacing table
+3. **VERIFY** pixel values match Figma exactly
+4. **TEST** in browser with actual measurements
+
+#### **Workflow Integration:**
+1. Extract Figma pixel values first
+2. Open `tailwind.config.js` alongside code
+3. Use spacing lookup table for every conversion
+4. Document pixel → class conversions in comments
+
+```tsx
+// Example with conversion comments
+<div className="w-3 h-3">     {/* 24px from Figma */}
+<div className="w-4 h-4">     {/* 32px from Figma */} 
+<div className="w-9 h-9">     {/* 64px from Figma */}
+<div className="p-2">         {/* 16px padding from Figma */}
+<div className="gap-3">       {/* 24px gap from Figma */}
+```
+
+### 📊 **VALIDATION METHODS**
+
+#### **Browser DevTools Check:**
+1. Inspect element in browser
+2. Verify computed pixel values match Figma
+3. Check both mobile and desktop breakpoints
+4. Ensure responsive scaling works correctly
+
+#### **Visual Comparison:**
+1. Place browser side-by-side with Figma
+2. Compare sizes at 100% zoom
+3. Verify proportions and spacing match
+4. Test on different screen sizes
+
+This rule is **CRITICAL** and must be followed for every spacing-related class to ensure pixel-perfect Figma-to-code conversion.
