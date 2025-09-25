@@ -13,8 +13,7 @@
     "lint": "next lint",
     "prepare": "cd .. && node -e \"if (process.env.NODE_ENV === 'development'){process.exit(1)} \" || husky install frontend/.husky",
     "lint-staged": "lint-staged",
-    "analyze": "cross-env ANALYZE=true next build",
-    "storyblok:upload-schemas": "node scripts/upload-storyblok-schemas.js"
+    "analyze": "cross-env ANALYZE=true next build"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
@@ -27,6 +26,7 @@
     "@google-cloud/logging-winston": "6.0.1",
     "@storyblok/js": "^4.3.0",
     "@storyblok/react": "^5.4.12",
+    "@storyblok/richtext": "^3.8.0",
     "@svgr/webpack": "8.1.0",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",

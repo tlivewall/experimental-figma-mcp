@@ -48,7 +48,7 @@ let nextConfig = {
   reactStrictMode: true,
 
   images: {
-    domains: []
+    domains: ['a.storyblok.com', 'images.ctfassets.net']
   },
 
   async headers() {

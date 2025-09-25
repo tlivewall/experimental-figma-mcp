@@ -1,0 +1,223 @@
+---
+alwaysApply: true
+---
+# CMS Integration Rules
+
+## Overview
+This project uses a hybrid CMS setup with Storyblok as primary CMS and Contentful as secondary CMS for specific components. Follow these rules when working with CMS integrations.
+
+## Storyblok Integration Rules
+
+### Environment Variables Required
+- `STORYBLOK_ACCESS_TOKEN` - Access token for API calls
+- `STORYBLOK_PREVIEW_TOKEN` - Optional preview token
+- `STORYBLOK_VERSION` - 'published' or 'draft' (default: 'published')
+- `STORYBLOK_REGION` - 'eu', 'us', or 'cn' (default: 'eu')
+
+### Component Development Pattern
+
+#### 1. Type Definition
+Always create type definitions in `frontend/types/storyblok/[component].types.ts`:
+```typescript
+import { StoryblokComponent } from './base.types';
+
+export interface Storyblok[ComponentName] extends StoryblokComponent {
+  component: 'component_name';
+  title?: string;
+  description?: string;
+  // ... specific fields
+}
+```
+
+#### 2. React Component Structure
+Create components in `frontend/components/sections/[component]/[component]-storyblok.component.tsx`:
+```typescript
+import { Storyblok[ComponentName] } from 'types/storyblok';
+import Typography from 'components/ui/typography/typography.component';
+import Container from 'components/ui/container/container.component';
+
+type Props = Storyblok[ComponentName];
+
+const [ComponentName]: React.FC<Props> = (props) => {
+  const { title, description } = props;
+  
+  // Early return for validation
+  if (!title) return null;
+  
+  return (
+    <section className="w-full py-14 md:py-14">
+      <Container>
+        {/* Component implementation */}
+      </Container>
+    </section>
+  );
+};
+
+export default [ComponentName];
+```
+
+#### 3. Component Registration
+ALWAYS register new components in `frontend/lib/storyblok-components.ts`:
+```typescript
+import [ComponentName] from '@components/sections/[component]';
+
+export const storyblokComponents = {
+  // ... existing components
+  'component_name': [ComponentName],
+};
+```
+
+#### 4. Export Management
+Update `frontend/components/sections/index.ts`:
+```typescript
+export { default as [ComponentName] } from './[component]';
+```
+
+### Page Development Rules
+
+#### Dynamic Routing Structure
+- Homepage: `app/[locale]/page.tsx` (slug: 'home')
+- Single pages: `app/[locale]/[slug]/page.tsx`
+- Nested pages: `app/[locale]/[slug]/[id]/page.tsx`
+
+#### Page Implementation Pattern
+```typescript
+import { getStoryBySlug } from '@utils/storyblok';
+import { storyblokComponentMap } from '@utils/helpers/storyblok-mapping';
+
+const PageComponent: NextPage<Props> = async ({ params }) => {
+  const storyData = await getStoryBySlug(params.slug);
+  
+  if (!storyData) {
+    notFound();
+  }
+
+  const pageContent = Array.isArray(storyData.content.body) 
+    ? storyData.content.body 
+    : [];
+
+  return (
+    <>
+      {pageContent.map((contentItem, index) => {
+        const Component = storyblokComponentMap[contentItem.component];
+        return Component 
+          ? <Component key={contentItem._uid} {...contentItem} />
+          : null;
+      })}
+    </>
+  );
+};
+```
+
+### SEO & Metadata Rules
+Always implement `generateMetadata` for pages:
+```typescript
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const storyData = await getStoryBySlug(params.slug);
+  
+  if (!storyData?.content.SEO) {
+    return {};
+  }
+
+  const seoData = storyData.content.SEO;
+  
+  return {
+    title: seoData.title,
+    description: seoData.description,
+    openGraph: {
+      title: seoData.og_title || seoData.title,
+      description: seoData.og_description || seoData.description,
+      images: seoData.og_image ? [{ url: seoData.og_image }] : undefined
+    }
+  };
+}
+```
+
+## Contentful Integration Rules
+
+### Trigger Keywords for Automated Workflow
+When the user says any of these phrases, execute the full Contentful component workflow:
+- "build a contentful component"
+- "create a contentful component"
+- "build this component" (with Figma link)
+- "make a contentful component"
+
+### Environment Variables Required
+- `CONTENTFUL_SPACE_ID` - Contentful space identifier
+- `CONTENTFUL_PERSONAL_ACCESS_TOKEN` - Management API token
+- `CONTENTFUL_ENVIRONMENT` - Environment name (default: 'master')
+
+### Naming Conventions
+- **Main Components**: Use camelCase with "section" prefix (e.g., `sectionFaq`, `sectionTestimonials`)
+- **Sub-Components**: Use camelCase without prefix (e.g., `faqItem`, `uspCard`)
+- **Field Names**: Use simple, descriptive names (title, description, image, buttonLink)
+
+### Component Mapping Registration
+ALWAYS update `frontend/utils/helpers/contentful-mapping.tsx`:
+```typescript
+import { [ComponentName] } from '@components/sections';
+
+export const contentfulComponentMap: Record<string, React.ComponentType<any>> = {
+  // ... existing mappings
+  '[contentfulApiId]': [ComponentName], // Key MUST match Contentful content type ID exactly
+};
+```
+
+## General CMS Rules
+
+### Type Safety Requirements
+- Always use TypeScript interfaces for CMS data
+- Implement proper error handling with early returns
+- Use type guards for runtime validation
+- Extend base interfaces from `StoryblokComponent` or `ContentfulFields`
+
+### Performance Requirements
+- Implement caching strategies with Next.js `unstable_cache`
+- Use proper image optimization with Next.js Image component
+- Configure CDN domains in `next.config.js`:
+  ```javascript
+  images: {
+    domains: ['images.ctfassets.net', 'a.storyblok.com']
+  }
+  ```
+
+### Component Structure Requirements
+- Use functional components with TypeScript
+- Implement responsive design with mobile-first approach
+- Use project's Tailwind spacing scale
+- Follow consistent component structure:
+  ```typescript
+  const Component: React.FC<Props> = (props) => {
+    // Destructure props
+    // Early returns for validation
+    // Component logic
+    // Return JSX
+  };
+  ```
+
+### Error Handling Requirements
+- Always check for required data before rendering
+- Use early returns for missing data
+- Log warnings for missing components or data
+- Provide fallback content when appropriate
+
+### Development Workflow
+1. Create type definitions first
+2. Develop component with proper TypeScript typing
+3. Register component in appropriate mapping file
+4. Update export files
+5. Test component rendering
+6. Verify SEO metadata implementation
+
+### File Organization
+- Types: `frontend/types/[cms]/[component].types.ts`
+- Components: `frontend/components/sections/[component]/`
+- Services: `frontend/utils/[cms]/`
+- Mappings: `frontend/utils/helpers/[cms]-mapping.tsx`
+
+### Code Quality
+- Follow ESLint rules
+- Use Prettier for code formatting
+- Implement proper JSDoc comments
+- Use descriptive variable names
+- Maintain consistent coding patterns

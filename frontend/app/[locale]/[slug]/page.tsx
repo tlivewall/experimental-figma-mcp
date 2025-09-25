@@ -1,10 +1,12 @@
 
-import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getStoryblokApi, StoryblokComponent } from '@storyblok/react';
-import { StoryblokBridge } from '@components/storyblok';
+import { notFound } from 'next/navigation';
+import Container from '@components/ui/container/container.component';
+import { Typography } from '@components/ui';
+import { getStoryBySlug } from '@utils/storyblok';
+import { storyblokComponentMap } from '@utils/helpers/storyblok-mapping';
 
-interface StoryblokPageProps {
+interface PageProps {
   params: Promise<{
     locale: string;
     slug: string;
@@ -12,71 +14,93 @@ interface StoryblokPageProps {
 }
 
 /**
- * Generate metadata for Storyblok pages
+ * Generate metadata for pages
  */
-export async function generateMetadata({ params }: StoryblokPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const storyData = await getStoryBySlug(slug);
   
-  try {
-    const storyblokApi = getStoryblokApi();
-    const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
-      version: 'draft',
-    });
-    
+  if (!storyData?.content.SEO) {
     return {
-      title: data.story.content?.title || data.story.name || 'Page',
-      description: data.story.content?.description || '',
-    };
-  } catch {
-    return {
-      title: 'Page Not Found',
+      title: `${slug.charAt(0).toUpperCase() + slug.slice(1)} - Page`,
+      description: `Page for ${slug}`,
     };
   }
+
+  const seoData = storyData.content.SEO;
+  
+  return {
+    title: seoData.title || `${slug.charAt(0).toUpperCase() + slug.slice(1)} - Page`,
+    description: seoData.description || `Page for ${slug}`,
+    openGraph: {
+      title: seoData.og_title || seoData.title || `${slug.charAt(0).toUpperCase() + slug.slice(1)}`,
+      description: seoData.og_description || seoData.description || `Page for ${slug}`,
+      images: seoData.og_image ? [{ url: seoData.og_image.filename }] : undefined
+    }
+  };
 }
 
 /**
- * Storyblok Dynamic Page Component
- * Handles all content pages from Storyblok CMS within locale context
- * 
- * Routes:
- * - /nl/home → Storyblok story with slug "home"
- * - /en/about → Storyblok story with slug "about"
- * - /nl/contact → Storyblok story with slug "contact"
- * - etc.
+ * Dynamic Page Component  
+ * Renders Storyblok content based on slug
  */
-export default async function StoryblokPage({ params }: StoryblokPageProps) {
+export default async function DynamicPage({ params }: PageProps) {
   const { locale, slug } = await params;
 
-  // Get Storyblok API instance
-  const storyblokApi = getStoryblokApi();
-  let story;
-
-  try {
-    // Fetch story from Storyblok
-    const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
-      version: 'draft', // Use 'published' for production
-      resolve_links: 'url', // Resolve internal links
-      resolve_relations: [], // Add relations if needed
-      language: locale, // Pass locale for internationalization
-    });
-    story = data.story;
-  } catch (error) {
-    console.error(`Error fetching story "${slug}" with locale "${locale}" from Storyblok:`, error);
+  // Get Storyblok story by slug
+  const storyData = await getStoryBySlug(slug);
+  
+  if (!storyData) {
+    // If no Storyblok story found, show 404
     notFound();
   }
 
-  // If no story found, show 404
-  if (!story) {
-    notFound();
+  // Render Storyblok content
+  const pageContent = Array.isArray(storyData.content.body) 
+    ? storyData.content.body 
+    : [];
+
+  if (pageContent.length === 0) {
+    // Fallback for empty content
+    return (
+      <div className="min-h-screen py-8">
+        <Container>
+          <div className="max-w-4xl mx-auto">
+            <Typography type="h1" size="h1" weight="bold" className="mb-4">
+              {storyData.name || slug.charAt(0).toUpperCase() + slug.slice(1)}
+            </Typography>
+            <Typography type="p" size="default" className="text-gray-600 mb-4">
+              Locale: {locale}
+            </Typography>
+            <div className="p-4 bg-yellow-50 rounded-lg">
+              <Typography type="p" size="default" className="text-yellow-800">
+                ⚠️ This story exists in Storyblok but has no content blocks. Add components to the body field in Storyblok.
+              </Typography>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
   }
 
   return (
     <>
-      {/* Storyblok Bridge for Visual Editor */}
-      <StoryblokBridge story={story} />
-      
-      {/* Render Storyblok content */}
-      <StoryblokComponent blok={story.content} />
+      {pageContent.map((contentItem, index) => {
+        const Component = storyblokComponentMap[contentItem.component];
+        
+        if (!Component) {
+          // Log missing component for debugging
+          console.warn(`Storyblok component "${contentItem.component}" not found in mapping`);
+          return null;
+        }
+        
+        return (
+          <Component 
+            key={contentItem._uid || `component-${index}`} 
+            {...contentItem} 
+          />
+        );
+      })}
     </>
   );
 }
@@ -86,27 +110,18 @@ export default async function StoryblokPage({ params }: StoryblokPageProps) {
  * Uncomment and customize if you want to pre-generate specific pages
  */
 // export async function generateStaticParams() {
-//   const storyblokApi = getStoryblokApi();
-//   const locales = ['nl', 'en']; // Add your supported locales
+//   const locales = ['nl', 'en'];
+//   const slugs = ['home', 'landing', 'about']; // Add your pages
 //   
-//   try {
-//     const { data } = await storyblokApi.get('cdn/stories', {
-//       version: 'published',
-//       per_page: 100,
-//     });
-//     
-//     const params = [];
-//     for (const locale of locales) {
-//       for (const story of data.stories) {
-//         params.push({
-//           locale,
-//           slug: story.slug,
-//         });
-//       }
+//   const params = [];
+//   for (const locale of locales) {
+//     for (const slug of slugs) {
+//       params.push({
+//         locale,
+//         slug,
+//       });
 //     }
-//     
-//     return params;
-//   } catch {
-//     return [];
 //   }
+//   
+//   return params;
 // }

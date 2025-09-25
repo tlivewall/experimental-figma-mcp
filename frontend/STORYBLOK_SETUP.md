@@ -1,180 +1,176 @@
-# 🚀 Storyblok Integration Setup
+# 🏗️ Storyblok Integration Setup
 
-Deze handleiding legt uit hoe je de Storyblok connectie opzet en gebruikt.
+## 🎯 Environment Variables
 
-## 📋 Vereisten
-
-1. **Storyblok Account**: Zorg dat je een Storyblok space hebt
-2. **API Tokens**: Preview en Public tokens uit je Storyblok settings
-3. **Environment Variabelen**: Configuratie in `.env.local`
-
-## 🔧 Environment Setup
-
-Maak een `.env.local` bestand in de `frontend/` directory:
+Create a `.env.local` file in the `frontend` directory with the following variables:
 
 ```bash
-# Storyblok Configuration  
-STORYBLOK_ACCESS_TOKEN=your_preview_token_here
-NEXT_PUBLIC_STORYBLOK_ACCESS_TOKEN=your_public_token_here  
-STORYBLOK_SPACE_ID=your_space_id_here
+# Storyblok Configuration
+STORYBLOK_ACCESS_TOKEN=your_storyblok_access_token_here
+STORYBLOK_PREVIEW_TOKEN=your_storyblok_preview_token_here  # Optional
+STORYBLOK_VERSION=published                                # or 'draft' for preview
+STORYBLOK_REGION=eu                                       # or 'us' or 'cn'
 
-# Optional: Management API (voor programmatisch content maken)
-STORYBLOK_MANAGEMENT_TOKEN=your_management_token_here
+# Contentful Configuration (for secondary CMS features)
+CONTENTFUL_SPACE_ID=your_contentful_space_id_here
+CONTENTFUL_PERSONAL_ACCESS_TOKEN=your_contentful_management_token_here
+CONTENTFUL_ENVIRONMENT=master
 ```
 
-### 🔑 Tokens Vinden in Storyblok
+## 🔑 Getting Your Storyblok Tokens
 
-1. **Preview Token**: Settings → Access Tokens → "Preview" token
-2. **Public Token**: Settings → Access Tokens → "Public" token  
-3. **Space ID**: Te vinden in de URL van je space
-4. **Management Token**: Settings → Access Tokens → "Management" token
+1. **Access Token**: 
+   - Go to [Storyblok Settings](https://app.storyblok.com/#!/me/account)
+   - Navigate to "My Account" → "Personal Access Tokens"
+   - Create a new token or use existing one
 
-## 📦 Component Schema's Importeren
+2. **Preview Token** (Optional):
+   - Go to your Space in Storyblok
+   - Navigate to "Settings" → "API-Keys"
+   - Copy the Preview access token
 
-### Optie 1: Handmatig in Storyblok UI
+## 🏠 Content Structure
 
-1. Ga naar **Components** in je Storyblok space
-2. Klik **+ New** → **Import from JSON**
-3. Gebruik het schema bestand: `frontend/storyblok/schemas/quick-actions-schema.json`
+### Homepage Setup
+Create a story with slug `home` in Storyblok root:
+- **Name**: "Home"
+- **Slug**: "home"
+- **Content Type**: Use the page template
+- **Body**: Add Storyblok components (e.g., quick_actions)
 
-### Optie 2: Via Management API (automatisch)
+### Page Structure
+For other pages, create stories with their desired slugs:
+- **Name**: "About Us"
+- **Slug**: "about"
+- **Content Type**: Page template
+- **Body**: Add your components
 
-```bash
-# In de frontend directory
-npm run storyblok:import-schemas
+### SEO Configuration
+Add SEO fields to your pages:
+```json
+{
+  "component": "seo",
+  "title": "Page Title",
+  "description": "Page description",
+  "og_title": "Open Graph Title",
+  "og_description": "Open Graph Description",
+  "og_image": "path/to/image.jpg"
+}
 ```
 
-## 🎯 Component Configuratie
+## 🧩 Available Components
 
-De volgende componenten zijn beschikbaar:
+### Quick Actions
+Component ID: `quick_actions`
 
-### 1. **Quick Actions** (`quick_actions`)
-- **Title**: Section titel  
-- **Variant**: Grid layout type (auto/horizontal/grid)
-- **Layout**: Card style (horizontal/vertical)
-- **Items**: Array van quick action items (1-6 stuks)
-- **CTA**: Optionele call-to-action button
+**Fields:**
+- `title` (Text): Section title
+- `description` (Text): Section description
+- `actions` (Blocks): Array of quick action items
 
-### 2. **Quick Action Item** (`quick_action_item`)  
-- **Title**: Actie titel
-- **Description**: Korte beschrijving (max 150 chars)
-- **Link**: Bestemmings URL
-- **Icon**: Optionele afbeelding (SVG aanbevolen)
+**Quick Action Item Fields:**
+- `title` (Text): Action title
+- `description` (Text): Action description  
+- `icon` (Asset): Action icon image
+- `link` (Link): Action destination
 
-### 3. **CTA Button** (`cta_button`)
-- **Text**: Button tekst
-- **Link**: Button bestemmings URL
+## 🔄 Adding New Components
 
-## 🌐 Routes en Pages
-
-### Automatische Route Handling
-
-Alle Storyblok content is beschikbaar via:
-- `/storyblok/[slug]` - Dynamische Storyblok pages
-- `/storyblok-test` - Test pagina voor ontwikkeling
-
-### Visual Editor
-
-1. **Preview URL instellen** in Storyblok:
+1. **Create Type Definition**:
+   ```typescript
+   // frontend/types/storyblok/your-component.types.ts
+   export interface StoryblokYourComponent extends StoryblokComponent {
+     component: 'your_component';
+     title?: string;
+     // ... other fields
+   }
    ```
-   https://your-domain.com/storyblok/
+
+2. **Create React Component**:
+   ```typescript
+   // frontend/components/sections/your-component/your-component-storyblok.component.tsx
+   import { StoryblokYourComponent } from 'types/storyblok';
+   
+   const YourComponentStoryblok: React.FC<StoryblokYourComponent> = (props) => {
+     // Component implementation
+   };
    ```
 
-2. **Real-time editing** wordt automatisch geactiveerd via de Storyblok bridge
+3. **Register Component**:
+   ```typescript
+   // frontend/lib/storyblok-components.ts
+   export const storyblokComponents = {
+     // ... existing components
+     'your_component': YourComponentStoryblok,
+   };
+   ```
 
-## 🧪 Testen
+4. **Update Mapping**:
+   ```typescript
+   // frontend/utils/helpers/storyblok-mapping.tsx
+   export const storyblokComponentMap = {
+     // ... existing mappings
+     'your_component': YourComponentStoryblok,
+   };
+   ```
 
-### Lokale Test
+## 🚀 Development Workflow
 
-1. Start je development server: `npm run dev`
-2. Ga naar: `http://localhost:3000/storyblok-test`
-3. Controleer of componenten correct renderen
+1. **Start Development Server**:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
 
-### Storyblok Visual Editor Test
+2. **Create Content in Storyblok**:
+   - Create stories with appropriate slugs
+   - Add components to the body field
+   - Publish your stories
 
-1. Maak een nieuwe Story in Storyblok
-2. Voeg het **Quick Actions** component toe
-3. Configureer de velden
-4. Open de **Visual Editor** tab
-5. Controleer real-time updates
-
-## 🔄 Deployment
-
-### Vercel/Netlify
-
-Voeg environment variabelen toe aan je hosting platform:
-
-```bash
-STORYBLOK_ACCESS_TOKEN=your_token
-NEXT_PUBLIC_STORYBLOK_ACCESS_TOKEN=your_public_token
-STORYBLOK_SPACE_ID=your_space_id
-```
-
-### Webhook Setup (Optioneel)
-
-Voor automatische cache invalidation:
-
-1. **Storyblok Settings** → **Webhooks**
-2. **Add webhook**: `https://your-domain.com/api/revalidate`
-3. **Events**: Published, Unpublished, Deleted
-
-## 📚 Gebruiksvoorbeelden
-
-### In Storyblok CMS
-
-1. **Nieuwe Story maken**
-2. **Component toevoegen**: Quick Actions
-3. **Configureren**:
-   - Title: "Snel naar"
-   - Variant: "Auto Detection"  
-   - Layout: "Horizontal"
-4. **Items toevoegen** (1-6 stuks)
-5. **Publiceren**
-
-### In Code (Custom Implementation)
-
-```typescript
-import { StoryblokQuickActions } from '@components/storyblok/QuickActions';
-
-const mockData = {
-  title: "Custom Quick Actions",
-  variant: "grid",
-  layout: "vertical",
-  quick_action_items: [
-    {
-      title: "Documenten",
-      description: "Bekijk alle documenten",
-      link: { url: "/documents" }
-    }
-  ]
-};
-
-<StoryblokQuickActions blok={mockData} />
-```
+3. **Preview Changes**:
+   - Set `STORYBLOK_VERSION=draft` for preview mode
+   - Use Storyblok's Visual Editor for live editing
 
 ## 🐛 Troubleshooting
 
-### Componenten Laden Niet
+### Common Issues
 
-1. ✅ Check environment variabelen
-2. ✅ Controleer component registratie in `StoryblokProvider.tsx`
-3. ✅ Verify schema import in Storyblok
+1. **Component not rendering**:
+   - Check component is registered in both `storyblok-components.ts` and `storyblok-mapping.tsx`
+   - Verify component name matches Storyblok exactly
 
-### Visual Editor Werkt Niet
+2. **Images not loading**:
+   - Ensure `a.storyblok.com` is in Next.js `next.config.js` domains
+   - Check image URL format in Storyblok
 
-1. ✅ Check preview URL configuratie
-2. ✅ Ensure `storyblokEditable` is toegevoegd aan componenten  
-3. ✅ Test met fresh browser session
+3. **SEO metadata not working**:
+   - Verify SEO component is added to story
+   - Check field names match exactly
 
-### API Errors
+4. **Pages showing 404**:
+   - Ensure story slug matches URL path
+   - Check story is published in Storyblok
+   - Verify `STORYBLOK_ACCESS_TOKEN` is correct
 
-1. ✅ Validate token permissions
-2. ✅ Check region settings (EU vs US)
-3. ✅ Verify space ID is correct
+### Debug Mode
 
-## 📞 Support
+Enable debug logging by adding to your component:
+```typescript
+if (process.env.NODE_ENV === 'development') {
+  console.log('Storyblok story data:', storyData);
+}
+```
 
-Voor vragen over deze setup:
-1. Check Storyblok documentatie: https://storyblok.com/docs
-2. Bekijk component code in `frontend/components/storyblok/`
-3. Test met de test pagina: `/storyblok-test`
+## 📚 Next Steps
+
+1. **Create your first Storyblok story**
+2. **Add Quick Actions component to test**
+3. **Configure SEO fields**
+4. **Set up preview mode for content editing**
+5. **Create additional components as needed**
+
+## 🔗 Useful Links
+
+- [Storyblok Documentation](https://www.storyblok.com/docs)
+- [Storyblok React SDK](https://github.com/storyblok/storyblok-react)
+- [Next.js Documentation](https://nextjs.org/docs)
