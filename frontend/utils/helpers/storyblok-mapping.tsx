@@ -4,13 +4,10 @@
  */
 
 import React from 'react';
-import { QuickActionsStoryblok } from '@components/sections/quick-actions';
 
 export const storyblokComponentMap: Record<string, React.ComponentType<any>> = {
-  // Main components
-  quick_actions: QuickActionsStoryblok,
+  // Add components here as they are created
   
-  // Add more components here as they are created
   // Example mappings from handoff:
   // faq: Faq,
   // call_to_action_banner: CallToActionBanner,

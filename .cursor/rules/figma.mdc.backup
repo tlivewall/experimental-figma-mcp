@@ -4,28 +4,15 @@ alwaysApply: true
 ---
 
 ## Trigger Keywords
-
-### Standard Figma Component Creation
-When the user says any of the following, execute ONLY the Figma component workflow:
+When the user says any of the following, execute the full Figma MCP Rules:
 - "build a figma component"
 - "create a figma component"
 - "build this component" (with Figma link)
 - "make a figma component"
 - "build a complete figma component"
 
-### Complete Figma + Storyblok Integration
-When the user says any of the following, execute BOTH Figma AND Storyblok workflows:
-- "build a figma component and create a storyblok module"
-- "create a figma component with storyblok integration"
-- "build this component and add it to storyblok"
-- "make a figma component and storyblok component"
-- "build a complete figma component with CMS integration"
-- "create a figma component and also create a storyblok module"
-- "build a figma component and also make a storyblok module"
-- "figma to storyblok component"
-- "complete figma storyblok workflow"
-
 ## Required Workflow Steps
+
 ### 🎯 1. Figma Analysis & Design Understanding
 - Use Figma tools to extract design specifications, colors, typography, spacing
 - Identify component structure, layout patterns, and responsive behavior
@@ -471,76 +458,3 @@ const padding = "p-2";      // 16px in custom scale
 4. Test on different screen sizes
 
 This rule is **CRITICAL** and must be followed for every spacing-related class to ensure pixel-perfect Figma-to-code conversion.
-## 🎯 **OPTIONAL: Complete Storyblok Integration Workflow**
-
-### When Storyblok Integration is Requested:
-Execute ALL of the standard Figma workflow steps PLUS the following additional steps:
-
-#### Additional Storyblok-Specific Steps:
-7. **Storyblok TypeScript Types Creation**
-   - Create `frontend/types/storyblok/[component-name].types.ts`
-   - Define Storyblok-specific interfaces extending StoryblokComponent
-   - Include proper asset and blocks structure for CMS
-
-8. **Storyblok React Component Wrapper**
-   - Create `[component-name]-storyblok.component.tsx` 
-   - Transform Storyblok data to Figma component props
-   - Handle CMS-specific data structures
-
-9. **Storyblok Component Registration**
-   - Update `lib/storyblok-components.ts` with component mapping
-   - Update `utils/helpers/storyblok-mapping.tsx` with component mapping
-   - Use exact API identifier as key (e.g., 'quick_actions': QuickActionsStoryblok)
-
-10. **Storyblok CMS Module Creation Script**
-    - Create `scripts/create-[component-name]-storyblok.js`
-    - Include environment variable checks for STORYBLOK_MANAGEMENT_TOKEN and STORYBLOK_SPACE_ID
-    - Create both main component and sub-components if needed
-    - Add package.json script: `"storyblok:setup-[component]": "node scripts/create-[component-name]-storyblok.js"`
-
-11. **Execute Storyblok Component Creation**
-    - Run the script: `npm run storyblok:setup-[component]`
-    - Verify components are created in Storyblok Block Library
-    - Create demo story with sample content
-
-12. **Storyblok Documentation Update**
-    - Update `STORYBLOK_SETUP.md` with new component information
-    - Include field descriptions and usage instructions
-    - Add component to available components list
-
-### Storyblok Success Criteria (When Requested):
-- ✅ Storyblok TypeScript types created
-- ✅ Storyblok wrapper component functional
-- ✅ Component registered in both mapping files
-- ✅ Storyblok script created and executed successfully
-- ✅ Components visible in Storyblok Block Library
-- ✅ Demo story created with working content
-- ✅ Documentation updated with usage instructions
-
-### Storyblok Component Naming Convention:
-- **Main Component API ID**: Use snake_case (e.g., `quick_actions`, `media_highlight`)
-- **Sub-Component API ID**: Use snake_case with parent prefix (e.g., `quick_action_item`)
-- **React Component Names**: Use PascalCase with "Storyblok" suffix (e.g., `QuickActionsStoryblok`)
-
-### Required Storyblok Fields Structure:
-**Main Section Components:**
-- `title` (Text, required) - Section title
-- `items` or content (Blocks, required) - Main content blocks
-- Layout options (Option field) - When applicable
-- Mobile-specific settings (Boolean) - For responsive behavior
-
-**Sub-Components:**
-- `title` (Text, required) - Item title
-- `description` (Text, required) - Item description
-- `icon` (Asset, optional) - Visual elements
-- `href` (Text, optional/required) - Navigation links
-- Component-specific fields as needed
-
-### Storyblok Integration Delivery Summary:
-When Storyblok integration is completed, ALWAYS provide:
-- 🎨 Figma component summary
-- ⚛️ React component functionality
-- 🏗️ Storyblok components created in space [SPACE_ID]
-- 📄 Demo story URL for content creators
-- 🔧 Usage instructions for both code and CMS
-- 📚 Next steps for content management

@@ -36,7 +36,7 @@ Create a story with slug `home` in Storyblok root:
 - **Name**: "Home"
 - **Slug**: "home"
 - **Content Type**: Use the page template
-- **Body**: Add Storyblok components (e.g., quick_actions)
+- **Body**: Add Storyblok components
 
 ### Page Structure
 For other pages, create stories with their desired slugs:
@@ -59,20 +59,6 @@ Add SEO fields to your pages:
 ```
 
 ## 🧩 Available Components
-
-### Quick Actions
-Component ID: `quick_actions`
-
-**Fields:**
-- `title` (Text): Section title
-- `description` (Text): Section description
-- `actions` (Blocks): Array of quick action items
-
-**Quick Action Item Fields:**
-- `title` (Text): Action title
-- `description` (Text): Action description  
-- `icon` (Asset): Action icon image
-- `link` (Link): Action destination
 
 ## 🔄 Adding New Components
 
@@ -163,11 +149,32 @@ if (process.env.NODE_ENV === 'development') {
 
 ## 📚 Next Steps
 
-1. **Create your first Storyblok story**
-2. **Add Quick Actions component to test**
-3. **Configure SEO fields**
-4. **Set up preview mode for content editing**
-5. **Create additional components as needed**
+1. **Set up environment variables** (see .env.local.example)
+2. **Run the automated setup**: `npm run storyblok:setup`
+3. **Create your first Storyblok story**
+5. **Configure SEO fields**
+6. **Set up preview mode for content editing**
+7. **Create additional components as needed**
+
+## 🔧 Manual Component Creation
+
+If you prefer to create components manually in Storyblok:
+
+- **Type**: Nestable Block
+- **Fields**:
+  - `title` (Text, required)
+  - `description` (Text, required)  
+  - `icon` (Asset, optional, images only)
+  - `href` (Text, required)
+  - `isExternal` (Boolean, optional)
+
+- **Type**: Nestable Block
+- **Fields**:
+  - `title` (Text, required, default: "Snel naar")
+  - `layout` (Option, options: "cards", "grid", default: "cards")
+  - `showMoreButton` (Boolean, optional, default: true)
+  - `moreButtonText` (Text, optional, default: "Bekijk meer") 
+  - `moreButtonHref` (Text, optional, default: "#")
 
 ## 🔗 Useful Links
 

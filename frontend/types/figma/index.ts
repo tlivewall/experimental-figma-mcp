@@ -1,1 +1,1 @@
-export * from './quick-actions.types';
+// Figma component types will be exported here
