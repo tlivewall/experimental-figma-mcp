@@ -147,34 +147,42 @@ if (process.env.NODE_ENV === 'development') {
 }
 ```
 
+## 🚀 Available Components
+
+### Quick Actions
+**ID**: `quick_actions`  
+**Description**: Section displaying quick action cards with responsive layout options
+
+**Setup Script**: `npm run storyblok:setup-quick-actions`
+
+**Storyblok Fields**:
+- `title` (Text, required) - Section title
+- `items` (Blocks, required) - List of quick action items (quick_action_item only)
+- `layout` (Option, optional) - Layout style: "vertical" (3 columns) or "horizontal" (3x2 grid)
+- `show_more_button` (Boolean, optional) - Show "View More" button on mobile
+- `more_button_text` (Text, optional) - Button text (default: "Bekijk meer")
+- `more_button_link` (Link, optional) - Button destination
+
+**Sub-component**: `quick_action_item`
+- `title` (Text, required) - Action title
+- `description` (Text, required) - Action description
+- `icon` (Asset, optional) - Action icon image
+- `link` (Link, optional) - Action destination
+
+**Demo Story**: Created automatically when running setup script
+
 ## 📚 Next Steps
 
 1. **Set up environment variables** (see .env.local.example)
-2. **Run the automated setup**: `npm run storyblok:setup`
+2. **Run component setup scripts** (e.g., `npm run storyblok:setup-quick-actions`)
 3. **Create your first Storyblok story**
-5. **Configure SEO fields**
-6. **Set up preview mode for content editing**
-7. **Create additional components as needed**
+4. **Configure SEO fields**
+5. **Set up preview mode for content editing**
+6. **Create additional components as needed**
 
 ## 🔧 Manual Component Creation
 
-If you prefer to create components manually in Storyblok:
-
-- **Type**: Nestable Block
-- **Fields**:
-  - `title` (Text, required)
-  - `description` (Text, required)  
-  - `icon` (Asset, optional, images only)
-  - `href` (Text, required)
-  - `isExternal` (Boolean, optional)
-
-- **Type**: Nestable Block
-- **Fields**:
-  - `title` (Text, required, default: "Snel naar")
-  - `layout` (Option, options: "cards", "grid", default: "cards")
-  - `showMoreButton` (Boolean, optional, default: true)
-  - `moreButtonText` (Text, optional, default: "Bekijk meer") 
-  - `moreButtonHref` (Text, optional, default: "#")
+If you prefer to create components manually in Storyblok, refer to the field structures above.
 
 ## 🔗 Useful Links
 

@@ -470,10 +470,18 @@ const padding = "p-2";      // 16px in custom scale
 3. Verify proportions and spacing match
 4. Test on different screen sizes
 
-This rule is **CRITICAL** and must be followed for every spacing-related class to ensure pixel-perfect Figma-to-code conversion.
-## 🎯 **OPTIONAL: Complete Storyblok Integration Workflow**
+## 🚨 **CRITICAL CHECKPOINT**
+When trigger phrases include "storyblok integration", "CMS integration", or "with storyblok":
+- ❌ DO NOT STOP after completing Figma component creation
+- ✅ CONTINUE with ALL Storyblok integration steps (7-12)
+- ✅ ACTUALLY create components in Storyblok using Management API
+- ✅ CREATE a working test story in Storyblok
+- ✅ VERIFY components render correctly in Storyblok
 
-### When Storyblok Integration is Requested:
+This rule is **CRITICAL** and must be followed for every spacing-related class to ensure pixel-perfect Figma-to-code conversion.
+## 🎯 **MANDATORY: Complete Storyblok Integration Workflow**
+
+### When Storyblok Integration is Requested via trigger phrases:
 Execute ALL of the standard Figma workflow steps PLUS the following additional steps:
 
 #### Additional Storyblok-Specific Steps:

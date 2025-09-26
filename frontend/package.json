@@ -14,6 +14,7 @@
     "prepare": "cd .. && node -e \"if (process.env.NODE_ENV === 'development'){process.exit(1)} \" || husky install frontend/.husky",
     "lint-staged": "lint-staged",
     "analyze": "cross-env ANALYZE=true next build",
+    "storyblok:setup-quick-actions": "node scripts/create-quick-actions-storyblok.js"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [

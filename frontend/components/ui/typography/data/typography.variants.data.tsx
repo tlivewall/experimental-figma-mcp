@@ -17,6 +17,7 @@ export const typographyVariants = cva(
         h2: "md:text-[28px] md:leading-[24px]",
         body16: "md:text-[16px] md:leading-[24px]",
         body14: "md:text-[14px] md:leading-[22px]",
+        cta20: "md:text-[20px] md:leading-[20px]",
         // h3: ...more,
       },
       mobileSize: {
@@ -25,6 +26,7 @@ export const typographyVariants = cva(
         h2: "text-[32px] leading-[40px]",
         body16: "text-[16px] leading-[24px]",
         body14: "text-[14px] leading-[22px]",
+        cta20: "text-[20px] leading-[20px]",
         // h3: ...more,
       },
       color: {
