@@ -9,7 +9,7 @@ export interface StoryblokQuickActionItem extends StoryblokComponent {
   title?: string;
   description?: string;
   icon?: StoryblokAsset;
-  link?: StoryblokLink;
+  link?: StoryblokLink | string; // Can be string or StoryblokLink object
 }
 
 export interface StoryblokQuickActions extends StoryblokComponent {
@@ -17,4 +17,5 @@ export interface StoryblokQuickActions extends StoryblokComponent {
   title?: string;
   description?: string;
   actions?: StoryblokQuickActionItem[];
+  quick_action_items?: StoryblokQuickActionItem[]; // Storyblok field name
 }

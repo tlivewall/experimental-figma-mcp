@@ -12,15 +12,22 @@ type Props = StoryblokQuickActions;
  * Renders quick action items from Storyblok CMS
  */
 const QuickActionsStoryblok: React.FC<Props> = (props) => {
-  const { title, description, actions = [] } = props;
+  const { title, description, actions = [], quick_action_items = [] } = props;
+
+  // Use quick_action_items from Storyblok if actions is empty
+  const actionItems = actions.length > 0 ? actions : quick_action_items;
+
+  console.log('🎯 QuickActionsStoryblok props:', props);
+  console.log('🎯 Action items:', actionItems);
 
   // Early return for validation
-  if (!actions || actions.length === 0) {
+  if (!actionItems || actionItems.length === 0) {
+    console.warn('⚠️ No action items found in QuickActionsStoryblok');
     return null;
   }
 
   // Auto-detect optimal variant based on item count
-  const variant = actions.length <= 3 ? 'horizontal' : 'grid';
+  const variant = actionItems.length <= 3 ? 'horizontal' : 'grid';
 
   /**
    * Individual Quick Action Item Component
@@ -28,13 +35,22 @@ const QuickActionsStoryblok: React.FC<Props> = (props) => {
   const QuickActionItem: React.FC<{ item: StoryblokQuickActionItem }> = ({ item }) => {
     const { title: itemTitle, description: itemDescription, icon, link } = item;
     
-    // Early return if no link
-    if (!link?.cached_url && !link?.url) {
+    // Handle both string and object links
+    let href = '#';
+    let target = '_self';
+    
+    if (typeof link === 'string') {
+      href = link;
+    } else if (link) {
+      href = link.cached_url || link.url || '#';
+      target = link.target || '_self';
+    }
+    
+    // Early return if no valid link
+    if (!link) {
+      console.warn('⚠️ QuickActionItem has no link:', itemTitle);
       return null;
     }
-
-    const href = link.cached_url || link.url || '#';
-    const target = link.target || '_self';
 
     return (
       <Link 
@@ -147,7 +163,7 @@ const QuickActionsStoryblok: React.FC<Props> = (props) => {
               : 'flex flex-col gap-3 md:flex-row md:flex-wrap md:gap-2'
             }
           `}>
-            {actions.map((item) => (
+            {actionItems.map((item) => (
               <div 
                 key={`quick-action-storyblok-${item._uid}`}
                 className={variant === 'horizontal' ? 'md:flex-1' : ''}

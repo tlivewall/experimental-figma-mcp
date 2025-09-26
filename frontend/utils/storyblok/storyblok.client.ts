@@ -18,7 +18,7 @@ export const initStoryblok = () => {
       use: [apiPlugin],
       components: storyblokComponents,
       apiOptions: {
-        region: STORYBLOK_REGION,
+        region: 'eu',
         https: true,
       },
     });
@@ -34,7 +34,7 @@ class StoryblokApiClient {
   constructor() {
     this.api = new StoryblokClient({
       accessToken: STORYBLOK_ACCESS_TOKEN,
-      region: STORYBLOK_REGION,
+      region: 'eu',
       https: true,
     });
   }
@@ -49,7 +49,7 @@ class StoryblokApiClient {
     try {
       const defaultParams = {
         version: STORYBLOK_VERSION,
-        resolve_links: 'url' as 'url',
+        resolve_links: 'url' as const,
         resolve_relations: [],
         ...params,
       };
@@ -140,6 +140,6 @@ export const storyblokConfig = {
   accessToken: STORYBLOK_ACCESS_TOKEN,
   previewToken: STORYBLOK_PREVIEW_TOKEN,
   version: STORYBLOK_VERSION,
-  region: STORYBLOK_REGION,
+  region: 'eu',
   isPreview: STORYBLOK_VERSION === 'draft',
 };

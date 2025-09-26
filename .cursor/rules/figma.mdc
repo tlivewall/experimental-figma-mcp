@@ -35,6 +35,7 @@ When the user says any of the following, execute the full Figma MCP Rules:
   - When using the typography component, always use the type, size, color, weight, family and className props.
   - Sizes are defined in the typography.variants.data.tsx file.
   - If a size is not defined, create a new size based on the font size. We always name the variation body[size] eg. body14 for 14px.
+  - A main component should not have any pre defined margin or padding top or bottom from the container. This should be handled with cms defenitions. If the component is a sub-component, it can have pre defined margin or padding top or bottom from the container.
 
 ### 📝 3. TypeScript Type Generation
 - Create `frontend/types/figma/[component-name].types.ts`:

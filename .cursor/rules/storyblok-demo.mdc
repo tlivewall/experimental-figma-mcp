@@ -1,0 +1,17 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Storyblok Demo Rules
+
+## Overview
+When asked to create a demo for storyblok, follow these rules.
+
+## Required Workflow Steps
+- Follow the cms-integration.mdc rules.
+- Follow the figma.mdc rules.
+- Create a demo for the component in the storyblok demo folder.
+- Create a page within a /demo/[component-name]/page.tsx file. This page will be used to display the demo of the component.
+- When creating a component, make sure to add the basic placeholder text for the component. But when creating a demo, fill in al the required fields for the component.

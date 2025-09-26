@@ -22,7 +22,10 @@ export async function getStoryBySlug(
       fullSlug = `${folder}/${slug}`;
     }
 
-    const response = await storyblokApi.getStory(fullSlug);
+    const response = await storyblokApi.getStory(fullSlug, {
+      version: 'draft', // Always get latest version (includes published changes)
+      cv: Date.now(), // Cache busting parameter
+    });
     
     if (response?.data?.story) {
       return response.data.story;
@@ -33,7 +36,10 @@ export async function getStoryBySlug(
       const commonFolders = ['pages', 'blog', 'articles'];
       
       for (const commonFolder of commonFolders) {
-        const folderResponse = await storyblokApi.getStory(`${commonFolder}/${slug}`);
+        const folderResponse = await storyblokApi.getStory(`${commonFolder}/${slug}`, {
+          version: 'draft', // Always get latest version
+          cv: Date.now(), // Cache busting parameter
+        });
         if (folderResponse?.data?.story) {
           return folderResponse.data.story;
         }
@@ -52,7 +58,10 @@ export async function getStoryBySlug(
  */
 export async function getHomeStory(): Promise<StoryblokStory | null> {
   try {
-    const response = await storyblokApi.getStory('home');
+    const response = await storyblokApi.getStory('home', {
+      version: 'draft', // Always get latest version
+      cv: Date.now(), // Cache busting parameter
+    });
     return response?.data?.story || null;
   } catch (error) {
     console.error('Error fetching home story:', error);

@@ -1,5 +1,4 @@
 import type { NextPage, Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Container from '@components/ui/container/container.component';
 import { getDictionary } from './dictionaries';
