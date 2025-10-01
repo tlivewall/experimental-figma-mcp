@@ -110,14 +110,15 @@ export interface StoryblokFormBuilder extends StoryblokComponent {
   description?: string;
   steps?: StoryblokFormStep[];
   submit_button_text?: string;
-  submit_button_href?: string;
-  show_progress_bar?: boolean;
+  submit_button_href?: string; // Legacy: deprecated
+  submit_api_url?: string; // API endpoint URL
+  submit_method?: 'POST' | 'PUT'; // HTTP method
   allow_save_draft?: boolean;
   success_message?: string;
   success_redirect_url?: string;
+  error_message?: string; // Custom error message
   
   // Spacing fields (same pattern as card slider)
   padding?: 'none' | 'small' | 'medium' | 'large' | 'xlarge';
   paddingMobile?: 'none' | 'small' | 'medium' | 'large' | 'xlarge';
 }
-

@@ -4,7 +4,6 @@ import React, { useState, FormEvent } from 'react';
 import { FormBuilderFields, FormStep, FormFieldGroup, FormField } from 'types/figma';
 import Container from '@components/ui/container/container.component';
 import Typography from '@components/ui/typography/typography.component';
-import Button from '@components/ui/button/button.component';
 import {
   FormInput,
   FormTextarea,
@@ -29,9 +28,12 @@ const FormBuilder: React.FC<Props> = ({
   // description, // Not used in current implementation
   steps,
   submitButtonText = 'Submit',
-  submitButtonHref,
-  showProgressBar = true,
-  successMessage = 'Form submitted successfully!',
+  submitButtonHref, // Legacy
+  submitApiUrl,
+  submitMethod = 'POST',
+    successMessage = 'Form submitted successfully!',
+  successRedirectUrl,
+  errorMessage,
   onSubmit,
 }) => {
   console.log('steps', steps);
@@ -45,6 +47,7 @@ const FormBuilder: React.FC<Props> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const currentStep = steps[currentStepIndex];
   const isFirstStep = currentStepIndex === 0;
@@ -113,38 +116,79 @@ const FormBuilder: React.FC<Props> = ({
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
-      // Call custom onSubmit handler if provided
+      // Custom onSubmit handler (for testing/custom logic)
       if (onSubmit) {
         await onSubmit(formData);
       }
       
-      // If no submit URL is provided, log form data to console
-      if (!submitButtonHref) {
+      // API submission
+      if (submitApiUrl) {
+        // Prepare FormData for file uploads
+        const apiFormData = new FormData();
+        
+        // Add all form fields
+        Object.entries(formData).forEach(([key, value]) => {
+          if (value instanceof FileList) {
+            // Handle file uploads
+            Array.from(value).forEach((file) => {
+              apiFormData.append(`${key}[]`, file);
+            });
+          } else if (Array.isArray(value)) {
+            // Handle arrays (checkboxes, multiple selects)
+            value.forEach((item) => {
+              apiFormData.append(`${key}[]`, String(item));
+            });
+          } else if (value !== null && value !== undefined) {
+            // Handle regular fields
+            apiFormData.append(key, String(value));
+          }
+        });
+
+        // Send to API
+        const response = await fetch(submitApiUrl, {
+          method: submitMethod || 'POST',
+          body: apiFormData,
+          // Don't set Content-Type header - browser will set it with boundary for FormData
+        });
+
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+
+        // Optional: Parse response
+        const responseData = await response.json();
+        console.log('API Response:', responseData);
+      } else if (!submitApiUrl && !onSubmit) {
+        // No API URL and no custom handler - just log to console
         console.log('==============================================');
         console.log('📋 FORM SUBMISSION - Form Data');
         console.log('==============================================');
         console.log('Form Data:', formData);
         console.log('==============================================');
-      }
-      
-      // Simulate API call if no custom handler
-      if (!onSubmit) {
+        
+        // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
       
       setIsSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       
-      // Redirect if URL is provided
-      if (submitButtonHref) {
+      // Redirect after success (prioritize successRedirectUrl over legacy submitButtonHref)
+      const redirectUrl = successRedirectUrl || submitButtonHref;
+      if (redirectUrl) {
         setTimeout(() => {
-          window.location.href = submitButtonHref;
+          window.location.href = redirectUrl;
         }, 2000);
       }
     } catch (error) {
-      setSubmitError('Failed to submit form. Please try again.');
+      const errorMsg = errorMessage || 'Failed to submit form. Please try again.';
+      setSubmitError(errorMsg);
       console.error('Form submission error:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -172,9 +216,9 @@ const FormBuilder: React.FC<Props> = ({
             error={fieldError}
             value={(fieldValue as string) || ''}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            maxLength={'maxLength' in field ? field.maxLength : undefined}
-            minLength={'minLength' in field ? field.minLength : undefined}
-            pattern={'pattern' in field ? field.pattern : undefined}
+            {...('maxLength' in field && field.maxLength ? { maxLength: field.maxLength } : {})}
+            {...('minLength' in field && field.minLength ? { minLength: field.minLength } : {})}
+            {...('pattern' in field && field.pattern ? { pattern: field.pattern } : {})}
           />
         );
 
@@ -191,9 +235,9 @@ const FormBuilder: React.FC<Props> = ({
             error={fieldError}
             value={(fieldValue as string) || ''}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            rows={'rows' in field ? field.rows : 4}
-            maxLength={'maxLength' in field ? field.maxLength : undefined}
-            minLength={'minLength' in field ? field.minLength : undefined}
+            rows={'rows' in field && field.rows ? field.rows : 4}
+            {...('maxLength' in field && field.maxLength ? { maxLength: field.maxLength } : {})}
+            {...('minLength' in field && field.minLength ? { minLength: field.minLength } : {})}
           />
         );
 
@@ -256,8 +300,8 @@ const FormBuilder: React.FC<Props> = ({
             disabled={field.disabled}
             error={fieldError}
             onChange={(e) => handleFieldChange(field.name, e.target.files)}
-            accept={'accept' in field ? field.accept : undefined}
-            multiple={'multiple' in field ? field.multiple : false}
+            {...('accept' in field && field.accept ? { accept: field.accept } : {})}
+            {...('multiple' in field && field.multiple ? { multiple: field.multiple } : {})}
           />
         );
 
@@ -323,7 +367,7 @@ const FormBuilder: React.FC<Props> = ({
     <Container>
       <div className="max-w-[680px] mx-auto">
         {/* Progress Bar */}
-        {showProgressBar && steps.length > 1 && (
+        {steps.length > 1 && (
           <div className="mb-2">
             <div className="flex justify-start items-center mb-2">
               <Typography type="span" size="body16" weight="semibold" color="black">
@@ -390,44 +434,55 @@ const FormBuilder: React.FC<Props> = ({
           </div>
 
           {/* Navigation Buttons */}
-          <div className="px-4 md:px-6 pb-6 pt-2 border-t border-[#F3F4F6] flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+          <div className=" pb-6 pt-2 border-t border-[#F3F4F6] flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
             <div className="flex-1 sm:flex-initial">
               {!isFirstStep && (
-                <Button 
-                  type="secondary" 
-                  buttonElementType="button" 
+                <button
+                  type="button"
                   onClick={handlePrevious}
-                  className="w-full sm:w-auto min-w-[120px]"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto bg-white text-[#000017] border border-[#000017] rounded-[4px] px-2 py-1.5 flex items-center justify-center gap-1 hover:opacity-80 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
+                  <svg className="w-3 h-3 text-[#000017]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+                  </svg>
                   <Typography type="span" size="body16" weight="semibold" color="black">
                     Previous
                   </Typography>
-                </Button>
+                </button>
               )}
             </div>
             
             <div className="flex gap-3 flex-1 sm:flex-initial">
               {isLastStep ? (
-                <Button 
-                  type="primary" 
-                  buttonElementType="submit"
-                  className="w-full sm:w-auto min-w-[120px]"
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto bg-[#000017] text-white rounded-[4px] px-2 py-1.5 flex items-center justify-center gap-1 hover:opacity-80 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Typography type="span" size="body16" weight="semibold" color="black">
-                    {submitButtonText}
+                  <Typography type="span" size="body16" weight="semibold" className="text-white">
+                    {isSubmitting ? 'Submitting...' : submitButtonText}
                   </Typography>
-                </Button>
+                  {!isSubmitting && (
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                    </svg>
+                  )}
+                </button>
               ) : (
-                <Button 
-                  type="primary" 
-                  buttonElementType="button" 
+                <button
+                  type="button"
                   onClick={handleNext}
-                  className="w-full sm:w-auto min-w-[120px]"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto bg-[#000017] text-white rounded-[4px] px-2 py-1.5 flex items-center justify-center gap-1 hover:opacity-80 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Typography type="span" size="body16" weight="semibold" color="black">
+                  <Typography type="span" size="body16" weight="semibold" className="text-white">
                     Next
                   </Typography>
-                </Button>
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               )}
             </div>
           </div>
@@ -438,4 +493,3 @@ const FormBuilder: React.FC<Props> = ({
 };
 
 export default FormBuilder;
-

@@ -27,10 +27,12 @@ const FormBuilderStoryblok: React.FC<Props> = (props) => {
     steps,
     submit_button_text,
     submit_button_href,
-    show_progress_bar,
+    submit_api_url,
+    submit_method,
     allow_save_draft,
     success_message,
     success_redirect_url,
+    error_message,
     padding,
     paddingMobile,
   } = props;
@@ -173,11 +175,13 @@ const FormBuilderStoryblok: React.FC<Props> = (props) => {
     description,
     steps: steps.map(transformStep),
     submitButtonText: submit_button_text,
-    submitButtonHref: submit_button_href,
-    showProgressBar: show_progress_bar,
+    submitButtonHref: submit_button_href, // Legacy
+    submitApiUrl: submit_api_url,
+    submitMethod: submit_method || 'POST',
     allowSaveDraft: allow_save_draft,
     successMessage: success_message,
     successRedirectUrl: success_redirect_url,
+    errorMessage: error_message,
   };
 
   // Padding class mapping (applies to both top and bottom) - same as card slider
@@ -208,4 +212,3 @@ const FormBuilderStoryblok: React.FC<Props> = (props) => {
 };
 
 export default FormBuilderStoryblok;
-

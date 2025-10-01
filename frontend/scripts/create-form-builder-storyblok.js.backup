@@ -602,7 +602,6 @@ async function createFormBuilderComponent() {
     component: {
       name: 'Form Builder',
       schema: {
-        // GENERAL TAB
         title: {
           type: 'text',
           pos: 0,
@@ -632,74 +631,42 @@ async function createFormBuilderComponent() {
           description: 'Submit button text',
           translatable: true
         },
-        
-        // SETTINGS TAB
-        submit_api_url: {
+        submit_button_href: {
           type: 'text',
           pos: 4,
           required: false,
-          description: 'API endpoint URL (e.g., https://api.example.com/forms/submit)',
-          display_name: 'Submit API URL'
+          description: 'Redirect URL after submission'
         },
-        submit_method: {
-          type: 'option',
+        show_progress_bar: {
+          type: 'boolean',
           pos: 5,
-          default_value: 'POST',
-          description: 'HTTP method for API submission',
-          display_name: 'Submit Method',
-          options: [
-            { name: 'POST', value: 'POST' },
-            { name: 'PUT', value: 'PUT' }
-          ]
+          default_value: true,
+          description: 'Show progress bar for multi-step forms?'
         },
         allow_save_draft: {
           type: 'boolean',
           pos: 6,
           default_value: false,
-          description: 'Allow users to save draft?',
-          display_name: 'Allow Save Draft'
+          description: 'Allow users to save draft?'
         },
-        
-        // MESSAGES TAB
         success_message: {
-          type: 'textarea',
+          type: 'text',
           pos: 7,
-          default_value: 'Thank you! Your form has been submitted successfully.',
-          description: 'Message shown after successful submission',
-          translatable: true,
-          display_name: 'Success Message'
+          default_value: 'Form submitted successfully!',
+          description: 'Success message after submission',
+          translatable: true
         },
         success_redirect_url: {
           type: 'text',
           pos: 8,
           required: false,
-          description: 'URL to redirect to after successful submission',
-          display_name: 'Success Redirect URL'
+          description: 'Redirect URL after success (optional)'
         },
-        error_message: {
-          type: 'textarea',
-          pos: 9,
-          required: false,
-          default_value: 'Failed to submit form. Please try again.',
-          description: 'Custom error message when API submission fails',
-          translatable: true,
-          display_name: 'Error Message'
-        },
-        submit_button_href: {
-          type: 'text',
-          pos: 10,
-          required: false,
-          description: '⚠️ DEPRECATED - Use success_redirect_url instead',
-          display_name: 'Submit Button Href (Deprecated)'
-        },
-        
-        // LAYOUT TAB
         padding: {
           type: 'option',
-          pos: 11,
+          pos: 9,
           default_value: 'medium',
           description: 'Vertical padding (top & bottom) for desktop',
-          display_name: 'Padding (Desktop)',
           options: [
             { name: 'None (0px)', value: 'none' },
             { name: 'Small (16px)', value: 'small' },
@@ -710,10 +677,9 @@ async function createFormBuilderComponent() {
         },
         paddingMobile: {
           type: 'option',
-          pos: 12,
+          pos: 10,
           required: false,
           description: 'Vertical padding (top & bottom) for mobile - defaults to desktop if not set',
-          display_name: 'Padding (Mobile)',
           options: [
             { name: 'Default (use desktop)', value: '' },
             { name: 'None (0px)', value: 'none' },
@@ -724,25 +690,6 @@ async function createFormBuilderComponent() {
           ]
         }
       },
-      // Define tab groups
-      tabs: [
-        {
-          name: 'General',
-          keys: ['title', 'description', 'steps', 'submit_button_text']
-        },
-        {
-          name: 'Settings',
-          keys: ['submit_api_url', 'submit_method', 'allow_save_draft']
-        },
-        {
-          name: 'Messages',
-          keys: ['success_message', 'success_redirect_url', 'error_message', 'submit_button_href']
-        },
-        {
-          name: 'Layout',
-          keys: ['padding', 'paddingMobile']
-        }
-      ],
       is_root: false,
       is_nestable: true,
       real_name: 'form_builder',
@@ -766,6 +713,7 @@ async function createDemoStory() {
             component: 'form_builder',
             title: 'Contact Us',
             description: 'Fill out this form and we will get back to you as soon as possible.',
+            show_progress_bar: true,
             submit_button_text: 'Send Message',
             success_message: 'Thank you! We have received your message.',
             paddingTop: 'medium',

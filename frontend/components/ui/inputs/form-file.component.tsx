@@ -1,8 +1,9 @@
 'use client';
-import React, { InputHTMLAttributes, useState, useRef, DragEvent } from 'react';
+import React, { InputHTMLAttributes, useState, useRef, DragEvent, useEffect } from 'react';
 import classNames from 'classnames';
 import Typography from '../typography/typography.component';
 import AddPhotoIcon from '@assets/icon/add_a_photo.svg';
+import Image from 'next/image';
 
 interface FormFileProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
@@ -15,6 +16,7 @@ interface FormFileProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'typ
 interface UploadedFile {
   file: File;
   id: string;
+  previewUrl?: string;
 }
 
 /**
@@ -37,13 +39,42 @@ const FormFile: React.FC<FormFileProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      uploadedFiles.forEach(uploadedFile => {
+        if (uploadedFile.previewUrl) {
+          URL.revokeObjectURL(uploadedFile.previewUrl);
+        }
+      });
+    };
+  }, [uploadedFiles]);
+
+  const isImageFile = (file: File): boolean => {
+    return file.type.startsWith('image/');
+  };
+
+  const isVideoFile = (file: File): boolean => {
+    return file.type.startsWith('video/');
+  };
+
   const processFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    const newFiles: UploadedFile[] = Array.from(files).map(file => ({
-      file,
-      id: `${file.name}-${Date.now()}-${Math.random()}`,
-    }));
+    const newFiles: UploadedFile[] = Array.from(files).map(file => {
+      let previewUrl: string | undefined;
+      
+      // Generate preview URL for images and videos
+      if (isImageFile(file) || isVideoFile(file)) {
+        previewUrl = URL.createObjectURL(file);
+      }
+
+      return {
+        file,
+        id: `${file.name}-${Date.now()}-${Math.random()}`,
+        previewUrl,
+      };
+    });
 
     if (inputProps.multiple) {
       setUploadedFiles(prev => [...prev, ...newFiles]);
@@ -91,7 +122,14 @@ const FormFile: React.FC<FormFileProps> = ({
   };
 
   const handleRemoveFile = (fileId: string) => {
-    setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+    setUploadedFiles(prev => {
+      const fileToRemove = prev.find(f => f.id === fileId);
+      // Cleanup preview URL
+      if (fileToRemove?.previewUrl) {
+        URL.revokeObjectURL(fileToRemove.previewUrl);
+      }
+      return prev.filter(f => f.id !== fileId);
+    });
   };
 
   const handleDropZoneClick = () => {
@@ -183,16 +221,38 @@ const FormFile: React.FC<FormFileProps> = ({
       {/* Uploaded Files List */}
       {uploadedFiles.length > 0 && (
         <div className="mt-2 space-y-1.5">
-          {uploadedFiles.map(({ file, id: fileId }) => (
+          {uploadedFiles.map(({ file, id: fileId, previewUrl }) => (
             <div
               key={fileId}
               className="flex items-center justify-between p-2 bg-gray-50 border border-gray-200 rounded-[6px] group hover:bg-gray-100 transition-colors"
             >
               <div className="flex items-center gap-2 flex-1 min-w-0">
-                {/* File Icon */}
-                <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+                {/* Preview or File Icon */}
+                {previewUrl ? (
+                  <div className="w-12 h-12 rounded-[4px] overflow-hidden flex-shrink-0 bg-gray-200">
+                    {isImageFile(file) ? (
+                      <Image
+                        src={previewUrl}
+                        alt={file.name}
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : isVideoFile(file) ? (
+                      <video
+                        src={previewUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                      />
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-[4px] bg-gray-200 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                )}
 
                 {/* File Info */}
                 <div className="flex-1 min-w-0">

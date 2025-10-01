@@ -94,10 +94,11 @@ export interface FormBuilderFields {
   description?: string;
   steps: FormStep[];
   submitButtonText?: string;
-  submitButtonHref?: string;
-  showProgressBar?: boolean;
+  submitButtonHref?: string; // Legacy: redirect after submit (deprecated)
+  submitApiUrl?: string; // API endpoint to POST form data to
+  submitMethod?: 'POST' | 'PUT'; // HTTP method for API submission
   allowSaveDraft?: boolean;
   successMessage?: string;
-  successRedirectUrl?: string;
+  successRedirectUrl?: string; // Redirect URL after successful submission
+  errorMessage?: string; // Custom error message when API call fails
 }
-
