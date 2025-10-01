@@ -15,7 +15,8 @@
     "lint-staged": "lint-staged",
     "analyze": "cross-env ANALYZE=true next build",
     "storyblok:setup-quick-actions": "node scripts/create-quick-actions-storyblok.js",
-    "storyblok:setup-card-slider": "node scripts/create-card-slider-storyblok.js"
+    "storyblok:setup-card-slider": "node scripts/create-card-slider-storyblok.js",
+    "storyblok:setup-form-builder": "node scripts/create-form-builder-storyblok.js"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [

@@ -36,7 +36,6 @@ const ContentCardUsp: React.FC<Props> = ({
   const visRegex = /VIS/i;
   const hasVis = visRegex.test(title);
   const highlightColor = cardIndex % 2 === 0 ? '#fc4d16' : '#3053f9'; // Even=orange, Odd=purple
-  console.log('usps', usps);
   const cardPadding = isMobile ? 'pt-2 px-2' : 'pt-3 px-3';
   const contentPadding = isMobile ? 'p-2 gap-3' : 'p-3 gap-4';
   const borderRadius = isMobile ? 'rounded-[8px]' : 'rounded-[12px]';

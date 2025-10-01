@@ -210,6 +210,141 @@ if (process.env.NODE_ENV === 'development') {
 
 ---
 
+### Form Builder
+**ID**: `form_builder`  
+**Description**: Flexible multi-step form builder with various field types, responsive layout, and progress tracking. Perfect for contact forms, surveys, applications, and complex multi-step forms.
+
+**Setup Script**: `npm run storyblok:setup-form-builder`
+
+**Storyblok Fields**:
+- `title` (Text, optional) - Form title
+- `description` (Textarea, optional) - Form description
+- `steps` (Blocks, required) - Form steps (use 1 step for single-page forms)
+- `submit_button_text` (Text, optional) - Submit button text (default: "Submit")
+- `submit_button_href` (Text, optional) - Redirect URL after submission
+- `show_progress_bar` (Boolean, optional) - Show progress bar for multi-step forms (default: true)
+- `allow_save_draft` (Boolean, optional) - Allow users to save draft (default: false)
+- `success_message` (Text, optional) - Success message after submission
+- `success_redirect_url` (Text, optional) - Redirect URL after success
+- `paddingTop` (Option, optional) - Desktop top padding: none, small (48px), medium (112px), large (168px)
+- `paddingBottom` (Option, optional) - Desktop bottom padding: none, small (48px), medium (112px), large (168px)
+- `paddingTopMobile` (Option, optional) - Mobile top padding (defaults to desktop value)
+- `paddingBottomMobile` (Option, optional) - Mobile bottom padding (defaults to desktop value)
+
+**Sub-components**:
+
+**1. Form Step** (`form_step`)
+- `title` (Text, optional) - Step title
+- `description` (Textarea, optional) - Step description
+- `field_groups` (Blocks, required) - Field groups for this step
+- `show_step_number` (Boolean, optional) - Show step number (default: true)
+
+**2. Form Field Group** (`form_field_group`)
+- `fields` (Blocks, required) - Form fields in this group
+- `columns` (Option, optional) - Number of columns: 1, 2, or 3 (default: 1)
+- `gap` (Number, optional) - Gap between fields in pixels (default: 24)
+
+**3. Form Field Text** (`form_field_text`)
+- `field_type` (Option, required) - Type: text, email, tel, number, url, password
+- `name` (Text, required) - Field name (used for form submission)
+- `label` (Text, optional) - Field label
+- `placeholder` (Text, optional) - Placeholder text
+- `helper_text` (Text, optional) - Helper text below the field
+- `required` (Boolean, optional) - Is this field required?
+- `disabled` (Boolean, optional) - Is this field disabled?
+- `max_length` (Number, optional) - Maximum character length
+- `min_length` (Number, optional) - Minimum character length
+- `pattern` (Text, optional) - Regex pattern for validation
+
+**4. Form Field Textarea** (`form_field_textarea`)
+- `name` (Text, required) - Field name
+- `label` (Text, optional) - Field label
+- `placeholder` (Text, optional) - Placeholder text
+- `helper_text` (Text, optional) - Helper text
+- `required` (Boolean, optional) - Is required?
+- `disabled` (Boolean, optional) - Is disabled?
+- `rows` (Number, optional) - Number of visible text rows (default: 4)
+- `max_length` (Number, optional) - Maximum character length
+- `min_length` (Number, optional) - Minimum character length
+
+**5. Form Field Select** (`form_field_select`)
+- `name` (Text, required) - Field name
+- `label` (Text, optional) - Field label
+- `placeholder` (Text, optional) - Placeholder text
+- `helper_text` (Text, optional) - Helper text
+- `required` (Boolean, optional) - Is required?
+- `disabled` (Boolean, optional) - Is disabled?
+- `options` (Blocks, required) - Select options (form_field_option)
+- `multiple` (Boolean, optional) - Allow multiple selections?
+
+**6. Form Field Checkbox** (`form_field_checkbox`)
+- `name` (Text, required) - Field name
+- `label` (Text, required) - Checkbox label
+- `helper_text` (Text, optional) - Helper text
+- `required` (Boolean, optional) - Is required?
+- `disabled` (Boolean, optional) - Is disabled?
+
+**7. Form Field Radio** (`form_field_radio`)
+- `name` (Text, required) - Field name
+- `label` (Text, optional) - Field label
+- `helper_text` (Text, optional) - Helper text
+- `required` (Boolean, optional) - Is required?
+- `disabled` (Boolean, optional) - Is disabled?
+- `options` (Blocks, required) - Radio options (form_field_option)
+
+**8. Form Field File** (`form_field_file`)
+- `name` (Text, required) - Field name
+- `label` (Text, optional) - Field label
+- `helper_text` (Text, optional) - Helper text
+- `required` (Boolean, optional) - Is required?
+- `disabled` (Boolean, optional) - Is disabled?
+- `accept` (Text, optional) - Accepted file types (e.g., .pdf,.doc or image/*)
+- `multiple` (Boolean, optional) - Allow multiple file uploads?
+- `max_size` (Number, optional) - Maximum file size in bytes
+
+**9. Form Field Option** (`form_field_option`)
+- `label` (Text, required) - Option label (visible to user)
+- `value` (Text, required) - Option value (submitted with form)
+
+**Demo Story**: Created automatically at `/demo-form-builder`  
+**Demo URL**: View in Storyblok after running setup script
+
+**Features**:
+- **Single-page Forms**: Use 1 step for simple forms (contact, newsletter, etc.)
+- **Multi-step Forms**: Use multiple steps with progress bar and navigation
+- **Flexible Layout**: Use Field Groups with 1-3 columns to create side-by-side fields
+- **Field Types**: Text, Email, Phone, Number, Textarea, Select, Checkbox, Radio, File
+- **Validation**: Built-in validation with required fields and error messages
+- **Responsive**: Mobile-first design with optimized layouts
+- **Accessibility**: ARIA labels, proper error messaging, keyboard navigation
+- **Success States**: Custom success messages and optional redirects
+
+**Usage Tips**:
+1. **Single-page Contact Form**: Create 1 Form Step with Field Groups containing your fields
+2. **Multi-step Application**: Create multiple Form Steps, each with its own Field Groups
+3. **Side-by-side Fields**: Use Field Group with 2 columns for Name (First Name + Last Name)
+4. **Consistent Field Names**: Ensure all field names are unique within the form
+5. **Required Fields**: Mark important fields as required for validation
+
+**Example Structure**:
+```
+Form Builder
+└── Step 1: Personal Information
+    ├── Field Group (2 columns)
+    │   ├── Text Field: First Name (required)
+    │   └── Text Field: Last Name (required)
+    └── Field Group (1 column)
+        ├── Text Field: Email (type: email, required)
+        └── Text Field: Phone (type: tel)
+└── Step 2: Your Message
+    └── Field Group (1 column)
+        ├── Select: Subject (required, with options)
+        ├── Textarea: Message (required)
+        └── Checkbox: Newsletter opt-in
+```
+
+---
+
 ## 📚 Next Steps
 
 1. **Set up environment variables** (see .env.local.example)

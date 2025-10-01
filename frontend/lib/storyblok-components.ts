@@ -5,6 +5,7 @@
 
 import QuickActionsStoryblok from "@components/sections/quick-actions/quick-actions-storyblok.component";
 import CardSliderStoryblok from "@components/sections/card-slider/card-slider-storyblok.component";
+import FormBuilderStoryblok from "@components/sections/form-builder/form-builder-storyblok.component";
 
 export const storyblokComponents = {
   // Add components here as they are created
@@ -12,6 +13,8 @@ export const storyblokComponents = {
   'Quick Actions': QuickActionsStoryblok, // Storyblok component name with spaces
   card_slider: CardSliderStoryblok,
   'Card Slider': CardSliderStoryblok,
+  form_builder: FormBuilderStoryblok,
+  'Form Builder': FormBuilderStoryblok,
   
   // Example:
   // hero_section: HeroSectionStoryblok,
