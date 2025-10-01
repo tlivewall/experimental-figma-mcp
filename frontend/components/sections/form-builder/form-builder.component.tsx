@@ -16,7 +16,9 @@ import {
 } from '@components/ui';
 import classNames from 'classnames';
 
-type Props = FormBuilderFields;
+type Props = FormBuilderFields & {
+  onSubmit?: (formData: Record<string, unknown>) => void | Promise<void>;
+};
 
 /**
  * Form Builder Component
@@ -30,6 +32,7 @@ const FormBuilder: React.FC<Props> = ({
   submitButtonHref,
   showProgressBar = true,
   successMessage = 'Form submitted successfully!',
+  onSubmit,
 }) => {
   console.log('steps', steps);
   // Early return for validation
@@ -111,11 +114,24 @@ const FormBuilder: React.FC<Props> = ({
     }
 
     try {
-      // TODO: Implement actual form submission logic
-      console.log('Form submitted:', formData);
+      // Call custom onSubmit handler if provided
+      if (onSubmit) {
+        await onSubmit(formData);
+      }
       
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // If no submit URL is provided, log form data to console
+      if (!submitButtonHref) {
+        console.log('==============================================');
+        console.log('📋 FORM SUBMISSION - Form Data');
+        console.log('==============================================');
+        console.log('Form Data:', formData);
+        console.log('==============================================');
+      }
+      
+      // Simulate API call if no custom handler
+      if (!onSubmit) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
       
       setIsSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });

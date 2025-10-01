@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unknown-property */
+/* eslint-disable react/no-array-index-key */
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
