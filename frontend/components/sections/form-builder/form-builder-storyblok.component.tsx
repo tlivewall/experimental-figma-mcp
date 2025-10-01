@@ -13,22 +13,8 @@ import {
   FormFieldOption,
 } from 'types/figma';
 import FormBuilder from './form-builder.component';
-import classNames from 'classnames';
 
 type Props = StoryblokFormBuilder;
-
-/**
- * Helper function to get padding classes based on CMS configuration
- */
-const getPaddingClass = (size?: string, defaultSize = 'medium') => {
-  const paddingMap: Record<string, string> = {
-    'none': '',
-    'small': 'py-7',
-    'medium': 'py-14',
-    'large': 'py-21',
-  };
-  return paddingMap[size || defaultSize] || paddingMap[defaultSize];
-};
 
 /**
  * Storyblok wrapper for FormBuilder
@@ -45,10 +31,8 @@ const FormBuilderStoryblok: React.FC<Props> = (props) => {
     allow_save_draft,
     success_message,
     success_redirect_url,
-    paddingTop,
-    paddingBottom,
-    paddingTopMobile,
-    paddingBottomMobile,
+    padding,
+    paddingMobile,
   } = props;
 
   // Early return for validation
@@ -166,11 +150,11 @@ const FormBuilderStoryblok: React.FC<Props> = (props) => {
       
       // If it's a form_field_group, transform as a group
       if (componentType === 'form_field_group') {
-        return transformFieldGroup(item);
+        return transformFieldGroup(item as StoryblokFormFieldGroup);
       }
       
       // Otherwise, it's an individual field - transform it directly
-      const transformedField = transformField(item);
+      const transformedField = transformField(item as StoryblokFormField);
       return transformedField;
     }).filter((item): item is FormFieldGroup | FormField => item !== null);
     
@@ -196,20 +180,27 @@ const FormBuilderStoryblok: React.FC<Props> = (props) => {
     successRedirectUrl: success_redirect_url,
   };
 
-  // Calculate padding classes
-  const desktopPaddingTop = getPaddingClass(paddingTop);
-  const desktopPaddingBottom = getPaddingClass(paddingBottom);
-  const mobilePaddingTop = getPaddingClass(paddingTopMobile || paddingTop);
-  const mobilePaddingBottom = getPaddingClass(paddingBottomMobile || paddingBottom);
+  // Padding class mapping (applies to both top and bottom) - same as card slider
+  const getPaddingClass = (size?: string, defaultSize = 'medium') => {
+    const paddingMap: Record<string, string> = {
+      'none': '',
+      'small': 'py-2',      // 16px top & bottom
+      'medium': 'py-4',     // 32px top & bottom
+      'large': 'py-9',      // 64px top & bottom
+      'xlarge': 'py-14',    // 128px top & bottom
+    };
+    return paddingMap[size || defaultSize] || paddingMap[defaultSize];
+  };
+
+  const desktopPadding = getPaddingClass(padding);
+  const mobilePadding = getPaddingClass(paddingMobile || padding);
 
   return (
-    <div
-      className={classNames(
-        mobilePaddingTop,
-        mobilePaddingBottom,
-        desktopPaddingTop && `md:${desktopPaddingTop}`,
-        desktopPaddingBottom && `md:${desktopPaddingBottom}`
-      )}
+    <div 
+      className={`
+        ${mobilePadding}
+        md:${desktopPadding}
+      `}
     >
       <FormBuilder {...transformedProps} />
     </div>

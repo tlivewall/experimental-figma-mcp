@@ -226,10 +226,8 @@ if (process.env.NODE_ENV === 'development') {
 - `allow_save_draft` (Boolean, optional) - Allow users to save draft (default: false)
 - `success_message` (Text, optional) - Success message after submission
 - `success_redirect_url` (Text, optional) - Redirect URL after success
-- `paddingTop` (Option, optional) - Desktop top padding: none, small (48px), medium (112px), large (168px)
-- `paddingBottom` (Option, optional) - Desktop bottom padding: none, small (48px), medium (112px), large (168px)
-- `paddingTopMobile` (Option, optional) - Mobile top padding (defaults to desktop value)
-- `paddingBottomMobile` (Option, optional) - Mobile bottom padding (defaults to desktop value)
+- `padding` (Option, optional) - Vertical padding (top & bottom) for desktop: none (0px), small (16px), medium (32px), large (64px), xlarge (128px)
+- `paddingMobile` (Option, optional) - Vertical padding for mobile (defaults to desktop if not set)
 
 **Sub-components**:
 
@@ -239,10 +237,11 @@ if (process.env.NODE_ENV === 'development') {
 - `field_groups` (Blocks, required) - Field groups for this step
 - `show_step_number` (Boolean, optional) - Show step number (default: true)
 
-**2. Form Field Group** (`form_field_group`)
+**2. Form Field Group** (`form_field_group`) - **Optional for single fields**
 - `fields` (Blocks, required) - Form fields in this group
 - `columns` (Option, optional) - Number of columns: 1, 2, or 3 (default: 1)
 - `gap` (Number, optional) - Gap between fields in pixels (default: 24)
+- **Note**: Only use Form Field Group when you need multi-column layouts. For single fields, add them directly to Form Step!
 
 **3. Form Field Text** (`form_field_text`)
 - `field_type` (Option, required) - Type: text, email, tel, number, url, password
@@ -320,27 +319,37 @@ if (process.env.NODE_ENV === 'development') {
 - **Success States**: Custom success messages and optional redirects
 
 **Usage Tips**:
-1. **Single-page Contact Form**: Create 1 Form Step with Field Groups containing your fields
-2. **Multi-step Application**: Create multiple Form Steps, each with its own Field Groups
+1. **Single-page Contact Form**: Create 1 Form Step with fields added directly (no Field Group needed!)
+2. **Multi-step Application**: Create multiple Form Steps, each with its own fields
 3. **Side-by-side Fields**: Use Field Group with 2 columns for Name (First Name + Last Name)
-4. **Consistent Field Names**: Ensure all field names are unique within the form
-5. **Required Fields**: Mark important fields as required for validation
+4. **Single Fields**: Add fields directly to Form Step - Field Groups are only needed for multi-column layouts
+5. **Consistent Field Names**: Ensure all field names are unique within the form
+6. **Required Fields**: Mark important fields as required for validation
 
-**Example Structure**:
+**Example Structure (Optimized)**:
 ```
 Form Builder
 └── Step 1: Personal Information
-    ├── Field Group (2 columns)
+    ├── Field Group (2 columns) ← For side-by-side fields
     │   ├── Text Field: First Name (required)
     │   └── Text Field: Last Name (required)
-    └── Field Group (1 column)
-        ├── Text Field: Email (type: email, required)
-        └── Text Field: Phone (type: tel)
+    ├── Text Field: Email (type: email, required) ← Direct field, no group needed!
+    └── Text Field: Phone (type: tel) ← Direct field, no group needed!
 └── Step 2: Your Message
-    └── Field Group (1 column)
-        ├── Select: Subject (required, with options)
-        ├── Textarea: Message (required)
-        └── Checkbox: Newsletter opt-in
+    ├── Select: Subject (required, with options) ← Direct field
+    ├── Textarea: Message (required) ← Direct field
+    └── Checkbox: Newsletter opt-in ← Direct field
+```
+
+**Before optimization** (more complex):
+```
+Form Builder → Form Step → Form Field Group → Field
+```
+
+**After optimization** (simpler):
+```
+Form Builder → Form Step → Field (directly!)
+                        → Field Group → Multiple Fields (only when needed for multi-column layout)
 ```
 
 ---

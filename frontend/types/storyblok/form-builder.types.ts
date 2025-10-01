@@ -116,10 +116,8 @@ export interface StoryblokFormBuilder extends StoryblokComponent {
   success_message?: string;
   success_redirect_url?: string;
   
-  // Spacing fields (required for main components)
-  paddingTop?: 'none' | 'small' | 'medium' | 'large';
-  paddingBottom?: 'none' | 'small' | 'medium' | 'large';
-  paddingTopMobile?: '' | 'none' | 'small' | 'medium' | 'large';
-  paddingBottomMobile?: '' | 'none' | 'small' | 'medium' | 'large';
+  // Spacing fields (same pattern as card slider)
+  padding?: 'none' | 'small' | 'medium' | 'large' | 'xlarge';
+  paddingMobile?: 'none' | 'small' | 'medium' | 'large' | 'xlarge';
 }
 

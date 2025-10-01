@@ -662,52 +662,31 @@ async function createFormBuilderComponent() {
           required: false,
           description: 'Redirect URL after success (optional)'
         },
-        paddingTop: {
+        padding: {
           type: 'option',
           pos: 9,
           default_value: 'medium',
-          description: 'Top padding (desktop)',
+          description: 'Vertical padding (top & bottom) for desktop',
           options: [
-            { name: 'None', value: 'none' },
-            { name: 'Small (48px)', value: 'small' },
-            { name: 'Medium (112px)', value: 'medium' },
-            { name: 'Large (168px)', value: 'large' }
+            { name: 'None (0px)', value: 'none' },
+            { name: 'Small (16px)', value: 'small' },
+            { name: 'Medium (32px)', value: 'medium' },
+            { name: 'Large (64px)', value: 'large' },
+            { name: 'Extra Large (128px)', value: 'xlarge' }
           ]
         },
-        paddingBottom: {
+        paddingMobile: {
           type: 'option',
           pos: 10,
-          default_value: 'medium',
-          description: 'Bottom padding (desktop)',
-          options: [
-            { name: 'None', value: 'none' },
-            { name: 'Small (48px)', value: 'small' },
-            { name: 'Medium (112px)', value: 'medium' },
-            { name: 'Large (168px)', value: 'large' }
-          ]
-        },
-        paddingTopMobile: {
-          type: 'option',
-          pos: 11,
-          description: 'Top padding (mobile) - defaults to desktop if not set',
+          required: false,
+          description: 'Vertical padding (top & bottom) for mobile - defaults to desktop if not set',
           options: [
             { name: 'Default (use desktop)', value: '' },
-            { name: 'None', value: 'none' },
-            { name: 'Small (48px)', value: 'small' },
-            { name: 'Medium (112px)', value: 'medium' },
-            { name: 'Large (168px)', value: 'large' }
-          ]
-        },
-        paddingBottomMobile: {
-          type: 'option',
-          pos: 12,
-          description: 'Bottom padding (mobile) - defaults to desktop if not set',
-          options: [
-            { name: 'Default (use desktop)', value: '' },
-            { name: 'None', value: 'none' },
-            { name: 'Small (48px)', value: 'small' },
-            { name: 'Medium (112px)', value: 'medium' },
-            { name: 'Large (168px)', value: 'large' }
+            { name: 'None (0px)', value: 'none' },
+            { name: 'Small (16px)', value: 'small' },
+            { name: 'Medium (32px)', value: 'medium' },
+            { name: 'Large (64px)', value: 'large' },
+            { name: 'Extra Large (128px)', value: 'xlarge' }
           ]
         }
       },

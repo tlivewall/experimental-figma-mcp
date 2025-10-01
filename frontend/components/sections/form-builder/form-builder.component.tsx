@@ -24,7 +24,7 @@ type Props = FormBuilderFields;
  */
 const FormBuilder: React.FC<Props> = ({
   title,
-  description,
+  // description, // Not used in current implementation
   steps,
   submitButtonText = 'Submit',
   submitButtonHref,
@@ -46,7 +46,7 @@ const FormBuilder: React.FC<Props> = ({
   const currentStep = steps[currentStepIndex];
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === steps.length - 1;
-  const progress = ((currentStepIndex + 1) / steps.length) * 100;
+  // const progress = ((currentStepIndex + 1) / steps.length) * 100; // Not used in current implementation
 
   const handleFieldChange = (fieldName: string, value: unknown) => {
     setFormData((prev) => ({
@@ -259,7 +259,7 @@ const FormBuilder: React.FC<Props> = ({
     }[columns] || 'grid-cols-1';
 
     return (
-      <div key={group.id} className={classNames('grid gap-3', gridColsClass)}>
+      <div key={group.id} className={classNames('grid gap-4', gridColsClass)}>
         {group.fields.map((field) => renderField(field))}
       </div>
     );
@@ -271,24 +271,30 @@ const FormBuilder: React.FC<Props> = ({
       return renderFieldGroup(item as FormFieldGroup);
     }
     
-    // It's a direct FormField - render it with single column layout
-    return (
-      <div key={item.id} className="grid grid-cols-1 gap-3">
-        {renderField(item as FormField)}
-      </div>
-    );
+    // It's a direct FormField - render without wrapper
+    return renderField(item as FormField);
   };
 
   // Success state
   if (isSubmitted) {
     return (
       <Container>
-        <div className="max-w-[600px] mx-auto my-7 text-center">
-          <div className="mb-3 p-4 bg-green-50 border-l-4 border-green-600 rounded-[4px]">
-            <Typography type="h2" size="body16" weight="bold" color="black" className="text-green-600 mb-1">
-              Success!
+        <div className="max-w-[680px] mx-auto  px-2">
+          <div className="bg-white rounded-[12px] border border-[#E5E7EB] shadow-sm p-6 md:p-8 text-center">
+            {/* Success Icon */}
+            <div className="mb-4 flex justify-center">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            
+            {/* Success Message */}
+            <Typography type="h2" size="body16" weight="bold" color="black" className="text-[24px] leading-[32px] mb-2">
+              Form Submitted Successfully!
             </Typography>
-            <Typography type="p" size="body14" color="gray" className="text-green-800">
+            <Typography type="p" size="body16" color="gray" className="max-w-[480px] mx-auto">
               {successMessage}
             </Typography>
           </div>
@@ -299,58 +305,56 @@ const FormBuilder: React.FC<Props> = ({
 
   return (
     <Container>
-      <div className="max-w-[800px] mx-auto my-7">
-        {/* Form Header */}
-        {(title || description) && (
-          <div className="mb-4 text-center">
-            {title && (
-              <Typography type="h1" size="heading40" weight="bold" color="black" className="mb-2">
-                {title}
-              </Typography>
-            )}
-            {description && (
-              <Typography type="p" size="body16" color="gray">
-                {description}
-              </Typography>
-            )}
-          </div>
-        )}
-
+      <div className="max-w-[680px] mx-auto">
         {/* Progress Bar */}
         {showProgressBar && steps.length > 1 && (
-          <div className="mb-4">
-            <div className="flex justify-between mb-1">
-              <Typography type="span" size="body14" weight="semibold" color="black">
-                Step {currentStepIndex + 1} of {steps.length}
+          <div className="mb-2">
+            <div className="flex justify-start items-center mb-2">
+              <Typography type="span" size="body16" weight="semibold" color="black">
+                Stap {currentStepIndex + 1} of {steps.length}
               </Typography>
-              <Typography type="span" size="body14" color="gray">
+              <Typography type="span" size="body16"  color="black" className="ml-0.5">
+              - {currentStep.title}
+              </Typography>
+              {/* <Typography type="span" size="body16" weight="semibold" color="gray">
                 {Math.round(progress)}%
-              </Typography>
+              </Typography> */}
             </div>
-            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+            {/* <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#000017] transition-all duration-300"
+                className="h-full bg-[#000017] transition-all duration-500 ease-out rounded-full"
                 style={{ width: `${progress}%` }}
               />
-            </div>
+            </div> */}
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white p-4 rounded-[8px] border border-[#CCCCCC]">
+        <form onSubmit={handleSubmit} className="bg-white">
           {/* Step Header */}
-          {currentStep.title && (
-            <div className="mb-3 pb-3 border-b border-[#CCCCCC]">
-              {currentStep.showStepNumber && (
-                <Typography type="span" size="body14" weight="semibold" color="gray" className="mb-1 block">
-                  Step {currentStepIndex + 1}
+          {(currentStep.title || currentStep.description) && (
+            <div>
+              {/* {currentStep.showStepNumber && steps.length > 1 && (
+                <div className="mb-2">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#000017] text-white text-[12px] font-semibold">
+                    {currentStepIndex + 1}
+                  </span>
+                </div>
+              )} */}
+              {currentStep.title && (
+                <Typography 
+                  type="h2" 
+                  size="body32" 
+                  weight="bold" 
+                  color="black" 
+                  family="heading"
+                  className={classNames("uppercase", currentStep.description ? 'mb-1.5' : '')}
+                >
+                  {title}
                 </Typography>
               )}
-              <Typography type="h2" size="body16" weight="bold" color="black" className={currentStep.description ? 'mb-1' : ''}>
-                {currentStep.title}
-              </Typography>
               {currentStep.description && (
-                <Typography type="p" size="body14" color="gray">
+                <Typography type="p" size="body16" color="black" className="leading-[22px]">
                   {currentStep.description}
                 </Typography>
               )}
@@ -359,19 +363,26 @@ const FormBuilder: React.FC<Props> = ({
 
           {/* Submit Error */}
           {submitError && (
-            <FormErrorMessage message={submitError} className="mb-3" />
+            <div className="px-4 md:px-6 py-2">
+              <FormErrorMessage message={submitError} />
+            </div>
           )}
 
           {/* Field Groups or Individual Fields */}
-          <div className="space-y-4">
+          <div className="space-y-2 py-2">
             {currentStep.fieldGroups.map((item) => renderFieldGroupOrField(item))}
           </div>
 
           {/* Navigation Buttons */}
-          <div className="mt-4 pt-4 border-t border-[#CCCCCC] flex justify-between gap-2">
-            <div>
+          <div className="px-4 md:px-6 pb-6 pt-2 border-t border-[#F3F4F6] flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+            <div className="flex-1 sm:flex-initial">
               {!isFirstStep && (
-                <Button type="secondary" buttonElementType="button" onClick={handlePrevious}>
+                <Button 
+                  type="secondary" 
+                  buttonElementType="button" 
+                  onClick={handlePrevious}
+                  className="w-full sm:w-auto min-w-[120px]"
+                >
                   <Typography type="span" size="body16" weight="semibold" color="black">
                     Previous
                   </Typography>
@@ -379,15 +390,24 @@ const FormBuilder: React.FC<Props> = ({
               )}
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-3 flex-1 sm:flex-initial">
               {isLastStep ? (
-                <Button type="primary" buttonElementType="submit">
+                <Button 
+                  type="primary" 
+                  buttonElementType="submit"
+                  className="w-full sm:w-auto min-w-[120px]"
+                >
                   <Typography type="span" size="body16" weight="semibold" color="black">
                     {submitButtonText}
                   </Typography>
                 </Button>
               ) : (
-                <Button type="primary" buttonElementType="button" onClick={handleNext}>
+                <Button 
+                  type="primary" 
+                  buttonElementType="button" 
+                  onClick={handleNext}
+                  className="w-full sm:w-auto min-w-[120px]"
+                >
                   <Typography type="span" size="body16" weight="semibold" color="black">
                     Next
                   </Typography>
