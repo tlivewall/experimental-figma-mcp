@@ -1,7 +1,9 @@
 ---
-description: Figma MCP Rules For Next.js
+description: Figma Component Creation Workflow
 alwaysApply: true
 ---
+
+# Figma Component Workflow
 
 ## Trigger Keywords
 
@@ -20,535 +22,121 @@ When the user says any of the following, execute BOTH Figma AND Storyblok workfl
 - "build this component and add it to storyblok"
 - "make a figma component and storyblok component"
 - "build a complete figma component with CMS integration"
-- "create a figma component and also create a storyblok module"
-- "build a figma component and also make a storyblok module"
 - "figma to storyblok component"
 - "complete figma storyblok workflow"
 
+**IMPORTANT**: When Storyblok integration is requested, DO NOT STOP after Figma component creation. Continue with @storyblok.mdc workflow.
+
+---
+
 ## Required Workflow Steps
+
 ### 🎯 1. Figma Analysis & Design Understanding
 - Use Figma tools to extract design specifications, colors, typography, spacing
 - Identify component structure, layout patterns, and responsive behavior
 - Note any interactive elements, states, or variants
-- Identify if the component is a main component of a sub-component
+- Identify if the component is a main component or a sub-component
 - Identify if the component already exists in the project
-- Idenfiry if linked figma files contain a singular component or a group of components. If it is a group of components, ask the user if the component is a main component or a sub-component. If it is a singular component, ask the user if the component is a main component or a sub-component.
-- When multiple files are linked and there is no context given, analyse if the file has a clear structure on what the component is. If there are smaller components within the file, create a sub-component or if needed create a ui component that will be used in the main component.
+- When multiple files are linked, analyze structure:
+  - If it's a group of components, ask user to clarify main vs sub-component
+  - If singular component with smaller elements inside, create sub-components
+  - Create UI components for reusable elements (buttons, inputs, etc.)
 
+### 📝 2. Component Design Rules
 
-### 📝 2. Figma Component Design Rules
-- **Naming Convention**: Use simple, descriptive component names (e.g., "Header Home", "Image", "Intro", "Media Highlight", "Stories", "Usp", "Call To Action Banner", "Testimonials", "Faq")
-- **Naming Convention for Sub-Components**: Use simple, descriptive sub-component names. A news card can be categorized under the folder 'card' and be called 'news-card'.
-- **Component Structure**: Follow existing component structure patterns in the project and if the component is a sub-component, add it to the sub-component folder. Main components go in the ./components/sections folder. and subcomponent go in the ./components/sections/[component-name]/components folder. When the component is considered an UI component, add it to the ./components/ui folder. Ui component are buttons, inputs, etc.
-- **Component Types**:
-  - Main Component
-  - Sub-Component
-  - UI Component
-- **Typography**: Use the typography component from the ./components/ui/typography/typography.component.tsx file.
-  - When using the typography component, always use the type, size, color, weight, family and className props.
-  - Sizes are defined in the typography.variants.data.tsx file.
-  - If a size is not defined, create a new size based on the font size. We always name the variation body[size] eg. body14 for 14px.
-  - A main component should not have any pre defined margin or padding top or bottom from the container. This should be handled with cms defenitions. If the component is a sub-component, it can have pre defined margin or padding top or bottom from the container.
+**Naming Conventions:**
+- **Main Components**: Simple, descriptive names (e.g., "Header Home", "Intro", "Media Highlight", "FAQ")
+- **Sub-Components**: Descriptive sub-names (e.g., "news-card" under `card/` folder)
+
+**Component Structure:**
+- **Main Components**: `./components/sections/[component-name]/`
+- **Sub-Components**: `./components/sections/[component-name]/components/`
+- **UI Components**: `./components/ui/[component-name]/`
+
+**Component Types:**
+- Main Component - Full section/page components
+- Sub-Component - Nested within main components
+- UI Component - Reusable elements (buttons, inputs, icons)
+
+**Typography Rules:**
+- Use Typography component from `./components/ui/typography/typography.component.tsx`
+- Always specify: `type`, `size`, `color`, `weight`, `className`
+- Sizes defined in `typography.variants.data.tsx`
+- If size not defined, create new variant: `body[size]` (e.g., `body14` for 14px)
+- See @typography.mdc for complete usage guide
+
+**Spacing Rules:**
+- Main components: NO predefined top/bottom padding (handled by CMS)
+- Sub-components: CAN have predefined spacing
+- See @spacing.mdc for Tailwind custom spacing scale
 
 ### 📝 3. TypeScript Type Generation
-- Create `frontend/types/figma/[component-name].types.ts`:
+Create `frontend/types/figma/[component-name].types.ts`:
 - Define interfaces following existing patterns
 - Use optional (?) for non-required fields
 - Include proper asset structure for media fields
 - Export both Fields and main interfaces
 
 ### 📝 4. React Component Creation
-- Create `frontend/components/sections/[component-name]/[component-name].component.tsx`:
-- Use existing UI components: Typography, Container, Button, etc.
-- Follow responsive design: mobile-first with Tailwind 
-- Each component is placed in a separate file; no default export.
-- When using a link always import the Link component from next/link and add the import at the top of the file.
-- If it is unclear if a component has interactive elements, ask the user of the component is interactive and what the interactions should be. Do this only when there are visible interactions in the Figma file.
+Create `frontend/components/sections/[component-name]/[component-name].component.tsx`:
+
+**Requirements:**
+- Use existing UI components: Typography, Container, Button, Icon
+- Follow responsive design: mobile-first with Tailwind
+- Each component in separate file
+- Import Link from 'next/link' when using links
+- Import Image from 'next/image' when using images
+- Buttons always use `type="button"`
+- Ask user about interactions if unclear from Figma
+
+**Best Practices:**
+- Use early returns for validation
+- Implement proper TypeScript typing
+- Follow project's Tailwind spacing scale (see @spacing.mdc)
+- Use Typography component for ALL text (see @typography.mdc)
 
 ### 📦 5. Export Management
-- Create component index.ts file: `export { default } from './[component-name].component';`
-
-
-**Tailwind**
-- Use project's Tailwind spacing scale (reference tailwind.config.js)
-- When translating Figma values to Tailwind classes, always use the project-specific spacing scale from tailwind.config.js. Tailwind's default rem values do not apply. Translate the pixel values from Figma to the corresponding Tailwind class according to the following logic: 16px padding becomes p-2 32px margin becomes m-4 8px gap becomes gap-1 40px height becomes h-6 and so on. The AI must first determine the pixel value from Figma and then directly map it to the defined numerical class (1, 2, 3, etc.) in the spacing scale.
-
-**UI Components**
-- Use existing UI components: Typography, Container, Button, etc.
-- When using a button, always use the button type="button" and add the import at the top of the file.
-
+- Create component index.ts: `export { default } from './[component-name].component';`
+- Update `frontend/components/sections/index.ts` with new component export
+- Update `frontend/types/figma/index.ts` with new type exports
 
 ### 📋 6. Delivery Summary
-- Summarize the component in a few sentences
-- Include the Figma link
-- Include the component name
-- Include the component type
-- Include the component structure
-- Include the component types
-- Include the component types
+Provide:
+- Component overview (2-3 sentences)
+- Figma link reference
+- Component type (Main/Sub/UI)
+- Files created/modified
+- Next steps
 
-**Workflow checklist**
+### Workflow Checklist
 - [ ] Figma Analysis & Design Understanding
-- [ ] Figma Component Design Rules
-- [ ] TypeScript Type Generation
-- [ ] React Component Creation
-- [ ] Export Management
-- [ ] Delivery Summary
-- [ ] Workflow checklist
+- [ ] Component Design Rules Applied
+- [ ] TypeScript Types Created
+- [ ] React Component Created  
+- [ ] Exports Configured
+- [ ] Best Practices Followed
+- [ ] Delivery Summary Provided
 
-## 🎨 Typography Implementation Rules
+---
 
-### 1. Typography Component Usage
-**ALWAYS** use the project's Typography component for ALL text elements:
-```tsx
-import Typography from 'components/ui/typography/typography.component';
+## Storyblok Integration
 
-// ✅ Correct Usage
-<Typography 
-  type="h3" 
-  size="body16" 
-  weight="semibold" 
-  color="black"
-  className="mb-1"
->
-  Title Text
-</Typography>
+When user requests Storyblok integration with trigger phrases containing "storyblok", "CMS integration", or "with storyblok":
 
-// ❌ Never do this
-<h3 className="text-lg font-bold text-black mb-1">Title Text</h3>
-```
-
-### 2. Typography Variants System
-
-#### **Size Naming Convention**
-- Use `body[size]` format for content sizes: `body14`, `body16`, `body18`, etc.
-- Use semantic names for headers: `h1`, `h2`, `h3`, etc.
-- Always reference pixel values from Figma designs
-
-#### **Adding New Typography Variants**
-When Figma specifies typography not in the project:
-
-1. **Add to typography.variants.data.tsx**:
-```tsx
-size: {
-  // ... existing sizes
-  body14: "md:text-[14px] md:leading-[22px]",  // Desktop
-  body16: "md:text-[16px] md:leading-[24px]",  // Desktop
-},
-mobileSize: {
-  // ... existing sizes  
-  body14: "text-[14px] leading-[22px]",        // Mobile
-  body16: "text-[16px] leading-[24px]",        // Mobile
-},
-```
-
-2. **Add colors from Figma specs**:
-```tsx
-color: {
-  // ... existing colors
-  black: "text-[#000017]",     // Figma: Neutraal/Zwart/Zwart
-  gray: "text-[#666674]",      // Figma: Neutraal/Zwart/Paragraph text
-},
-```
-
-3. **Add weights as needed**:
-```tsx
-weight: {
-  // ... existing weights
-  semibold: "font-semibold",   // For Figma SemiBold (600)
-},
-```
-
-### 3. Figma Typography Mapping
-
-#### **Standard Figma → Component Mapping**
-| Figma Specification | Component Implementation |
-|-------------------|-------------------------|
-| `Font(size: 16, weight: 600, lineHeight: 24)` | `size="body16" weight="semibold"` |
-| `Font(size: 14, weight: 400, lineHeight: 22)` | `size="body14" weight="default"` |
-| `Font(size: 16, weight: 400, lineHeight: 24)` | `size="body16" weight="default"` |
-| `Color: #000017` | `color="black"` |
-| `Color: #666674` | `color="gray"` |
-
-#### **Typography Hierarchy Guidelines**
-```tsx
-// Section titles
-<Typography type="h2" size="body16" weight="bold" color="gray">
-  Section Title
-</Typography>
-
-// Item titles  
-<Typography type="h3" size="body16" weight="semibold" color="black">
-  Item Title
-</Typography>
-
-// Descriptions
-<Typography type="p" size="body14" color="gray">
-  Description text
-</Typography>
-
-// CTA buttons (when using Typography)
-<Typography type="span" size="default" weight="bold" color="black" className="text-lg uppercase">
-  Button Text
-</Typography>
-```
-
-### 4. Implementation Checklist
-
-#### **Before Starting Component**
-- [ ] Extract typography specifications from Figma design output
-- [ ] Check if required sizes/weights/colors exist in `typography.variants.data.tsx`
-- [ ] Add missing variants following naming conventions
-
-#### **During Component Creation**
-- [ ] Use Typography component for ALL text elements
-- [ ] Never use inline `className` for typography styles (font-size, font-weight, color)
-- [ ] Always specify `type`, `size`, `weight`, and `color` props
-- [ ] Use semantic HTML elements via `type` prop
-
-#### **Component Review**
-- [ ] No hardcoded text styles in className
-- [ ] All text uses Typography component
-- [ ] Typography props match Figma specifications
-- [ ] Responsive typography works on mobile/desktop
-- [ ] ESLint passes without typography-related warnings
-
-### 5. Common Anti-Patterns to Avoid
-
-❌ **Don't mix Typography component with inline styles**:
-```tsx
-<Typography size="body16" className="text-lg font-bold">  // Conflicting styles
-```
-
-❌ **Don't use invalid variant names**:
-```tsx
-<Typography size="16" weight="medium">  // "16" and "medium" don't exist
-```
-
-❌ **Don't skip Typography component for "simple" text**:
-```tsx
-<span className="text-sm text-gray-600">Simple text</span>  // Should use Typography
-```
-
-❌ **Don't use hardcoded colors instead of design tokens**:
-```tsx
-<Typography color="default" className="text-[#666674]">  // Use color="gray" instead
-```
-
-### 6. Typography Audit Process
-
-When reviewing existing components:
-
-1. **Search for text-related Tailwind classes**: `text-`, `font-`, `leading-`
-2. **Identify Typography component usage gaps**
-3. **Map hardcoded styles to proper Typography variants**
-4. **Add missing variants to `typography.variants.data.tsx`**
-5. **Refactor components to use Typography consistently**
-
-### 7. Error Prevention
-
-#### **ESLint Rules Alignment**
-- Generate unique keys for mapped elements (avoid array indices)
-- Remove unused props like `view` parameter
-- Ensure all Typography props are valid variants
-
-#### **Type Safety**
-- All typography variants must be defined in the cva configuration
-- Import types from `types/Typography.ts` when needed
-- Use proper TypeScript interfaces for component props
-
-### 8. Design System Integration
-
-#### **Figma Design Token Extraction**
-When Figma output specifies:
-```
-Heading 16: Font(family: "Inter Tight", style: SemiBold, size: 16, weight: 600, lineHeight: 24)
-```
-
-Translate to:
-```tsx
-// 1. Add to variants if missing
-body16: "md:text-[16px] md:leading-[24px]"
-semibold: "font-semibold"
-
-// 2. Use in component
-<Typography type="h3" size="body16" weight="semibold" color="black">
-```
-
-#### **Consistency Enforcement**
-- All components should use identical Typography patterns
-- Color values should match Figma design tokens exactly
-- Spacing and sizing should align with project's Tailwind config
-
-This typography system ensures design consistency, maintainability, and perfect Figma-to-code fidelity across all components.
-
- # 🚨 CRITICAL: Custom Tailwind Spacing Scale Rule
-
-## ⚠️ **NEVER USE DEFAULT TAILWIND SPACING ASSUMPTIONS**
-
-This project uses a **CUSTOM spacing scale** that differs from Tailwind's defaults. You MUST always reference the project's `tailwind.config.js` for accurate spacing conversions.
-
-### 📏 **PROJECT'S CUSTOM SPACING SCALE**
-
-```js
-// FROM: tailwind.config.js
-spacing: {
-  px: '1px',
-  0: '0',
-  0.5: '4px',    // NOT 2px (Tailwind default)
-  1: '8px',      // NOT 4px (Tailwind default) 
-  1.5: '12px',   // NOT 6px (Tailwind default)
-  2: '16px',     // SAME as Tailwind default
-  2.5: '20px',   // NOT 10px (Tailwind default)
-  3: '24px',     // NOT 12px (Tailwind default) 
-  3.5: '28px',   // NOT 14px (Tailwind default)
-  4: '32px',     // NOT 16px (Tailwind default)
-  5: '36px',     // NOT 20px (Tailwind default)
-  6: '40px',     // NOT 24px (Tailwind default)
-  7: '48px',     // NOT 28px (Tailwind default)
-  8: '56px',     // NOT 32px (Tailwind default)
-  9: '64px',     // NOT 36px (Tailwind default)
-  10: '72px',    // NOT 40px (Tailwind default)
-  11: '80px',    // NOT 44px (Tailwind default)
-  12: '96px',    // SAME as Tailwind default
-  14: '128px'    // NOT 56px (Tailwind default)
-}
-```
-
-### 🎯 **FIGMA TO TAILWIND CONVERSION PROCESS**
-
-#### **Step 1: Extract Pixel Values from Figma**
-Always get exact pixel values from Figma design specifications:
-- Icon sizes: 24px, 32px, 48px, 64px, etc.
-- Spacing: padding, margin, gap values
-- Dimensions: width, height, min/max values
-
-#### **Step 2: MANDATORY Custom Scale Lookup**
-**NEVER assume standard Tailwind mappings.** Always use this conversion table:
-
-| Figma (px) | Custom Class | ❌ Wrong (Default) | Why Wrong |
-|------------|-------------|------------------|-----------|
-| 4px | `0.5` | `1` | Default `1` = 4px, but custom `1` = 8px |
-| 8px | `1` | `2` | Default `2` = 8px, but custom `2` = 16px |
-| 12px | `1.5` | `3` | Default `3` = 12px, but custom `3` = 24px |
-| 16px | `2` | `4` | Default `4` = 16px, but custom `4` = 32px |
-| 20px | `2.5` | `5` | Default `5` = 20px, but custom `5` = 36px |
-| 24px | `3` | `6` | Default `6` = 24px, but custom `6` = 40px |
-| 28px | `3.5` | `7` | Default `7` = 28px, but custom `7` = 48px |
-| 32px | `4` | `8` | Default `8` = 32px, but custom `8` = 56px |
-| 36px | `5` | `9` | Default `9` = 36px, but custom `9` = 64px |
-| 40px | `6` | `10` | Default `10` = 40px, but custom `10` = 72px |
-| 48px | `7` | `12` | Default `12` = 48px, but custom `12` = 96px |
-| 56px | `8` | `14` | Default `14` = 56px, but custom `14` = 128px |
-| 64px | `9` | `16` | Default `16` = 64px, custom has no `16` |
-| 72px | `10` | `18` | Default `18` = 72px, custom has no `18` |
-| 80px | `11` | `20` | Default `20` = 80px, custom has no `20` |
-| 96px | `12` | `24` | Default `24` = 96px, custom has no `24` |
-| 128px | `14` | `32` | Default `32` = 128px, custom has no `32` |
-
-#### **Step 3: Double-Check Common Cases**
-
-**Icon Sizes (Most Common Errors):**
-```tsx
-// ✅ CORRECT conversions
-<div className="w-3 h-3">     // 24px icons (chevrons, small icons)
-<div className="w-4 h-4">     // 32px icons (mobile app icons)  
-<div className="w-6 h-6">     // 40px icons (medium icons)
-<div className="w-7 h-7">     // 48px icons (large mobile icons)
-<div className="w-9 h-9">     // 64px icons (desktop app icons)
-
-// ❌ WRONG (using Tailwind defaults)
-<div className="w-6 h-6">     // This is 40px, NOT 24px!
-<div className="w-8 h-8">     // This is 56px, NOT 32px!
-<div className="w-12 h-12">   // This is 96px, NOT 48px!
-<div className="w-16 h-16">   // This doesn't exist in custom scale!
-```
-
-**Spacing Values:**
-```tsx
-// ✅ CORRECT conversions  
-<div className="p-2">         // 16px padding
-<div className="gap-2">       // 16px gap
-<div className="m-3">         // 24px margin
-<div className="space-y-3">   // 24px vertical spacing
-
-// ❌ WRONG (using Tailwind defaults)
-<div className="p-4">         // This is 32px, NOT 16px!
-<div className="gap-6">       // This is 40px, NOT 24px!
-<div className="m-6">         // This is 40px, NOT 24px!
-```
-
-### 🔧 **IMPLEMENTATION CHECKLIST**
-
-#### **Before Writing Any Spacing Class:**
-- [ ] Extract exact pixel value from Figma design
-- [ ] Look up pixel value in custom spacing scale table
-- [ ] Use the custom scale class number
-- [ ] Verify the conversion is correct
-
-#### **Code Review Questions:**
-- [ ] Did I reference `tailwind.config.js` for spacing conversions?
-- [ ] Are all `w-*`, `h-*`, `p-*`, `m-*`, `gap-*` classes using custom scale?
-- [ ] Did I avoid assuming Tailwind default mappings?
-- [ ] Do the pixel values match the Figma specifications exactly?
-
-#### **Testing:**
-- [ ] Inspect element in browser to verify actual pixel values
-- [ ] Compare rendered size with Figma design side-by-side
-- [ ] Check both mobile and desktop breakpoints
-
-### 📋 **COMMON ERROR PATTERNS TO AVOID**
-
-#### **❌ Default Tailwind Thinking:**
-```tsx
-// WRONG: Assuming default Tailwind scale
-const iconSize = "w-6 h-6"; // Thinking this is 24px (it's 40px!)
-const padding = "p-4";      // Thinking this is 16px (it's 32px!)
-```
-
-#### **✅ Custom Scale Thinking:**
-```tsx
-// CORRECT: Using custom scale lookup
-const iconSize = "w-3 h-3"; // 24px in custom scale
-const padding = "p-2";      // 16px in custom scale
-```
-
-### 🚨 **ERROR ANALYSIS EXAMPLES**
-
-#### **Example 1: Icon Size Error**
-- **Figma**: 64px × 64px app icon
-- **Wrong**: `md:w-12 md:h-12` (96px!)
-- **Correct**: `md:w-9 md:h-9` (64px)
-- **Root Cause**: Used Tailwind default thinking
-
-#### **Example 2: Chevron Icon Error**  
-- **Figma**: 24px × 24px chevron
-- **Wrong**: `w-6 h-6` (40px!)
-- **Correct**: `w-3 h-3` (24px)
-- **Root Cause**: Assumed `w-6` = 24px from defaults
-
-#### **Example 3: Mobile Icon Error**
-- **Figma**: 32px × 32px mobile icon  
-- **Wrong**: `w-8 h-8` (56px!)
-- **Correct**: `w-4 h-4` (32px)
-- **Root Cause**: Used default `w-8` = 32px assumption
-
-### 🎯 **PREVENTION STRATEGY**
-
-#### **Mental Model Shift:**
-1. **NEVER** use mental shortcuts from default Tailwind
-2. **ALWAYS** reference the custom spacing table
-3. **VERIFY** pixel values match Figma exactly
-4. **TEST** in browser with actual measurements
-
-#### **Workflow Integration:**
-1. Extract Figma pixel values first
-2. Open `tailwind.config.js` alongside code
-3. Use spacing lookup table for every conversion
-4. Document pixel → class conversions in comments
-
-```tsx
-// Example with conversion comments
-<div className="w-3 h-3">     {/* 24px from Figma */}
-<div className="w-4 h-4">     {/* 32px from Figma */} 
-<div className="w-9 h-9">     {/* 64px from Figma */}
-<div className="p-2">         {/* 16px padding from Figma */}
-<div className="gap-3">       {/* 24px gap from Figma */}
-```
-
-### 📊 **VALIDATION METHODS**
-
-#### **Browser DevTools Check:**
-1. Inspect element in browser
-2. Verify computed pixel values match Figma
-3. Check both mobile and desktop breakpoints
-4. Ensure responsive scaling works correctly
-
-#### **Visual Comparison:**
-1. Place browser side-by-side with Figma
-2. Compare sizes at 100% zoom
-3. Verify proportions and spacing match
-4. Test on different screen sizes
-
-## 🚨 **CRITICAL CHECKPOINT**
-When trigger phrases include "storyblok integration", "CMS integration", or "with storyblok":
+**⚠️ CRITICAL CHECKPOINT:**
 - ❌ DO NOT STOP after completing Figma component creation
-- ✅ CONTINUE with ALL Storyblok integration steps (7-12)
+- ✅ CONTINUE with ALL Storyblok integration steps from @storyblok.mdc
 - ✅ ACTUALLY create components in Storyblok using Management API
 - ✅ CREATE a working test story in Storyblok
-- ✅ VERIFY components render correctly in Storyblok
+- ✅ VERIFY components render correctly
 
-This rule is **CRITICAL** and must be followed for every spacing-related class to ensure pixel-perfect Figma-to-code conversion.
-## 🎯 **MANDATORY: Complete Storyblok Integration Workflow**
+See @storyblok.mdc for complete Storyblok integration workflow.
 
-### When Storyblok Integration is Requested via trigger phrases:
-Execute ALL of the standard Figma workflow steps PLUS the following additional steps:
+---
 
-#### Additional Storyblok-Specific Steps:
-7. **Storyblok TypeScript Types Creation**
-   - Create `frontend/types/storyblok/[component-name].types.ts`
-   - Define Storyblok-specific interfaces extending StoryblokComponent
-   - Include proper asset and blocks structure for CMS
+## References
 
-8. **Storyblok React Component Wrapper**
-   - Create `[component-name]-storyblok.component.tsx` 
-   - Transform Storyblok data to Figma component props
-   - Handle CMS-specific data structures
-
-9. **Storyblok Component Registration**
-   - Update `lib/storyblok-components.ts` with component mapping
-   - Update `utils/helpers/storyblok-mapping.tsx` with component mapping
-   - Use exact API identifier as key (e.g., 'quick_actions': QuickActionsStoryblok)
-
-10. **Storyblok CMS Module Creation Script**
-    - Create `scripts/create-[component-name]-storyblok.js`
-    - Include environment variable checks for STORYBLOK_MANAGEMENT_TOKEN and STORYBLOK_SPACE_ID
-    - Create both main component and sub-components if needed
-    - Add package.json script: `"storyblok:setup-[component]": "node scripts/create-[component-name]-storyblok.js"`
-
-11. **Execute Storyblok Component Creation**
-    - Run the script: `npm run storyblok:setup-[component]`
-    - Verify components are created in Storyblok Block Library
-    - Create demo story with sample content
-
-12. **Storyblok Documentation Update**
-    - Update `STORYBLOK_SETUP.md` with new component information
-    - Include field descriptions and usage instructions
-    - Add component to available components list
-
-### Storyblok Success Criteria (When Requested):
-- ✅ Storyblok TypeScript types created
-- ✅ Storyblok wrapper component functional
-- ✅ Component registered in both mapping files
-- ✅ Storyblok script created and executed successfully
-- ✅ Components visible in Storyblok Block Library
-- ✅ Demo story created with working content
-- ✅ Documentation updated with usage instructions
-
-### Storyblok Component Naming Convention:
-- **Main Component API ID**: Use snake_case (e.g., `quick_actions`, `media_highlight`)
-- **Sub-Component API ID**: Use snake_case with parent prefix (e.g., `quick_action_item`)
-- **React Component Names**: Use PascalCase with "Storyblok" suffix (e.g., `QuickActionsStoryblok`)
-
-### Required Storyblok Fields Structure:
-**Main Section Components:**
-- `title` (Text, required) - Section title
-- `items` or content (Blocks, required) - Main content blocks
-- Layout options (Option field) - When applicable
-- Mobile-specific settings (Boolean) - For responsive behavior
-
-**Sub-Components:**
-- `title` (Text, required) - Item title
-- `description` (Text, required) - Item description
-- `icon` (Asset, optional) - Visual elements
-- `href` (Text, optional/required) - Navigation links
-- Component-specific fields as needed
-
-### Storyblok Integration Delivery Summary:
-When Storyblok integration is completed, ALWAYS provide:
-- 🎨 Figma component summary
-- ⚛️ React component functionality
-- 🏗️ Storyblok components created in space [SPACE_ID]
-- 📄 Demo story URL for content creators
-- 🔧 Usage instructions for both code and CMS
-- 📚 Next steps for content management
+For detailed implementation guides:
+- **Typography**: @typography.mdc - Complete Typography component usage
+- **Spacing**: @spacing.mdc - Tailwind custom spacing scale conversions
+- **Storyblok**: @storyblok.mdc - Complete CMS integration workflow

@@ -171,6 +171,45 @@ if (process.env.NODE_ENV === 'development') {
 
 **Demo Story**: Created automatically when running setup script
 
+---
+
+### Card Slider
+**ID**: `card_slider`  
+**Description**: Horizontal card carousel component with navigation. Desktop shows 3 cards with step-based scrolling, mobile has horizontal scroll with pagination dots.
+
+**Setup Script**: `npm run storyblok:setup-card-slider`
+
+**Storyblok Fields**:
+- `title` (Text, required) - Section title (e.g., "Visdocumenten & Toestemmingen")
+- `cards` (Blocks, required) - List of USP cards (content_card_usp only)
+- `paddingTop` (Option, optional) - Desktop top padding: none, small (48px), medium (112px), large (168px)
+- `paddingBottom` (Option, optional) - Desktop bottom padding: none, small (48px), medium (112px), large (168px)
+- `paddingTopMobile` (Option, optional) - Mobile top padding (defaults to desktop value)
+- `paddingBottomMobile` (Option, optional) - Mobile bottom padding (defaults to desktop value)
+
+**Sub-component**: `content_card_usp`
+- `title` (Text, required) - Card title (e.g., "JeugdVISpas")
+- `title_highlight` (Text, optional) - Part of title to highlight (e.g., "VIS")
+- `title_highlight_color` (Text, optional) - Hex color for highlight (e.g., #fc4d16, #3053f9)
+- `image` (Asset, required) - Card image
+- `usps` (Textarea, required) - USP items, one per line (max 3 displayed)
+- `primary_button_text` (Text, required) - Primary CTA text (default: "Aanvragen")
+- `primary_button_href` (Text, optional) - Primary CTA link URL
+- `secondary_button_text` (Text, required) - Secondary CTA text (default: "Meer info")
+- `secondary_button_href` (Text, optional) - Secondary CTA link URL
+
+**Demo Story**: Created automatically at `/demo-card-slider`  
+**Demo URL**: View in Storyblok after running setup script
+
+**Features**:
+- **Desktop**: Shows 3 cards, scrolls 3 cards at a time (or remaining cards)
+- **Mobile**: Horizontal scroll with snap points, pagination dots
+- **Navigation**: Left/Right arrows (desktop), disabled state when at boundaries
+- **Responsive**: Different card sizes and layouts for desktop/mobile
+- **Accessibility**: Proper button labels and disabled states
+
+---
+
 ## 📚 Next Steps
 
 1. **Set up environment variables** (see .env.local.example)

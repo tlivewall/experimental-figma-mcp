@@ -10,6 +10,7 @@ export const typographyVariants = cva(
     variants: {
       family: {
         default: 'font-default antialiased',
+        heading: 'font-heading antialiased',
       },
       size: {
         default: "md:text-[16px] md:leading-[24px]",
@@ -18,6 +19,9 @@ export const typographyVariants = cva(
         body16: "md:text-[16px] md:leading-[24px]",
         body14: "md:text-[14px] md:leading-[22px]",
         cta20: "md:text-[20px] md:leading-[20px]",
+        heading56: "md:text-[56px] md:leading-[56px]",
+        heading48: "md:text-[48px] md:leading-[48px]", 
+        heading40: "md:text-[40px] md:leading-[40px]",
         // h3: ...more,
       },
       mobileSize: {
@@ -27,6 +31,9 @@ export const typographyVariants = cva(
         body16: "text-[16px] leading-[24px]",
         body14: "text-[14px] leading-[22px]",
         cta20: "text-[20px] leading-[20px]",
+        heading56: "text-[48px] leading-[48px]",
+        heading48: "text-[48px] leading-[48px]", 
+        heading40: "text-[40px] leading-[40px]",
         // h3: ...more,
       },
       color: {

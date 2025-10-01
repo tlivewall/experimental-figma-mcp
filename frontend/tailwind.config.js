@@ -12,8 +12,8 @@ module.exports = {
         statusRed: 'var(--color-statusRed)'
       },
       fontFamily: {
-        default: 'Open Sans, sans-serif',
-        heading: 'National 2 Compressed, sans-serif'
+        default: ['Open Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        heading: ['National2Compressed', 'ui-sans-serif', 'system-ui', 'sans-serif']
       }
     },
     spacing: {

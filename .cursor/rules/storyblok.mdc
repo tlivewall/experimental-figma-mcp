@@ -1,0 +1,592 @@
+---
+description: Storyblok CMS Integration Workflow
+alwaysApply: false
+---
+
+# Storyblok CMS Integration
+
+## When to Apply This Workflow
+
+Triggered automatically when user requests containing:
+- "storyblok integration"
+- "CMS integration"
+- "with storyblok"
+- "create storyblok module"
+- "add to storyblok"
+
+## Prerequisites
+
+1. **Figma component must be created first** (see @figma.mdc)
+2. **Environment variables required:**
+   - `STORYBLOK_ACCESS_TOKEN` - Access token for API calls
+   - `STORYBLOK_MANAGEMENT_TOKEN` - Management API token for creating components
+   - `STORYBLOK_SPACE_ID` - Space identifier
+   - `STORYBLOK_VERSION` - 'published' or 'draft' (default: 'published')
+   - `STORYBLOK_REGION` - 'eu', 'us', or 'cn' (default: 'eu')
+
+---
+
+## Complete Integration Workflow
+
+### 1. Storyblok TypeScript Types
+
+Create `frontend/types/storyblok/[component-name].types.ts`:
+
+```typescript
+import { StoryblokComponent } from './base.types';
+
+export interface Storyblok[ComponentName] extends StoryblokComponent {
+  component: 'component_name';  // snake_case API identifier
+  title?: string;
+  description?: string;
+  // ... component-specific fields
+}
+
+// Sub-component example
+export interface Storyblok[SubComponentName] extends StoryblokComponent {
+  component: 'sub_component_name';
+  title: string;
+  description: string;
+  icon?: { filename: string; alt: string };
+  href?: string;
+}
+```
+
+Update `frontend/types/storyblok/index.ts`:
+```typescript
+export * from './[component-name].types';
+```
+
+### 2. Storyblok Wrapper Component
+
+Create `frontend/components/sections/[component-name]/[component-name]-storyblok.component.tsx`:
+
+```typescript
+import React from 'react';
+import { Storyblok[ComponentName] } from 'types/storyblok';
+import [ComponentName] from './[component-name].component';
+
+type Props = Storyblok[ComponentName];
+
+/**
+ * Storyblok wrapper for [ComponentName]
+ * Transforms Storyblok CMS data to Figma component props
+ */
+const [ComponentName]Storyblok: React.FC<Props> = (props) => {
+  const { title, description, items, _uid } = props;
+  
+  // Early return for validation
+  if (!title) return null;
+  
+  // Transform Storyblok data to Figma component props
+  const transformedProps = {
+    title,
+    description,
+    items: items?.map(item => ({
+      title: item.title,
+      description: item.description,
+      // ... transform other fields
+    })) || [],
+  };
+
+  return <[ComponentName] {...transformedProps} />;
+};
+
+export default [ComponentName]Storyblok;
+```
+
+**Key Responsibilities:**
+- Transform Storyblok data structure to Figma component props
+- Handle CMS-specific data formats (assets, blocks, rich text)
+- Implement validation and early returns
+- Extract spacing/padding fields and apply to wrapper
+
+### 3. Component Registration
+
+**CRITICAL**: Update BOTH mapping files
+
+#### A. Update `frontend/lib/storyblok-components.ts`:
+```typescript
+import [ComponentName]Storyblok from '@components/sections/[component-name]/[component-name]-storyblok.component';
+
+export const storyblokComponents = {
+  // ... existing components
+  'component_name': [ComponentName]Storyblok,  // Must match Storyblok API ID
+  'sub_component_name': [SubComponentName]Storyblok,
+};
+```
+
+#### B. Update `frontend/utils/helpers/storyblok-mapping.tsx`:
+```typescript
+import { [ComponentName]Storyblok } from '@components/sections';
+
+export const storyblokComponentMap: Record<string, React.ComponentType<any>> = {
+  // ... existing mappings
+  'component_name': [ComponentName]Storyblok,  // Must match Storyblok API ID
+};
+```
+
+#### C. Update `frontend/components/sections/index.ts`:
+```typescript
+export { default as [ComponentName]Storyblok } from './[component-name]/[component-name]-storyblok.component';
+```
+
+### 4. CMS Module Creation Script
+
+Create `scripts/create-[component-name]-storyblok.js`:
+
+```javascript
+const StoryblokClient = require('storyblok-js-client');
+require('dotenv').config();
+
+// Environment variable validation
+const REQUIRED_ENV = ['STORYBLOK_MANAGEMENT_TOKEN', 'STORYBLOK_SPACE_ID'];
+REQUIRED_ENV.forEach(envVar => {
+  if (!process.env[envVar]) {
+    console.error(`❌ Missing required environment variable: ${envVar}`);
+    process.exit(1);
+  }
+});
+
+const Storyblok = new StoryblokClient({
+  oauthToken: process.env.STORYBLOK_MANAGEMENT_TOKEN,
+});
+
+const spaceId = process.env.STORYBLOK_SPACE_ID;
+
+async function createComponents() {
+  try {
+    // 1. Create sub-component first (if needed)
+    const subComponentSchema = {
+      name: 'Sub Component Name',
+      schema: {
+        title: { type: 'text', required: true },
+        description: { type: 'textarea', required: true },
+        icon: { type: 'asset', filetypes: ['images'] },
+        href: { type: 'text', },
+      },
+    };
+
+    const subComponent = await Storyblok.post(
+      `spaces/${spaceId}/components/`,
+      { component: subComponentSchema }
+    );
+    console.log('✅ Sub-component created:', subComponent.data.component.name);
+
+    // 2. Create main component
+    const mainComponentSchema = {
+      name: 'Component Name',
+      schema: {
+        title: { type: 'text', required: true },
+        items: { 
+          type: 'bloks',
+          restrict_components: true,
+          component_whitelist: ['sub_component_name'],
+        },
+        layout: {
+          type: 'option',
+          options: [
+            { name: 'Grid', value: 'grid' },
+            { name: 'List', value: 'list' }
+          ],
+        },
+        // Spacing fields (ALWAYS include for main components)
+        paddingTop: {
+          type: 'option',
+          options: [
+            { name: 'None', value: 'none' },
+            { name: 'Small (48px)', value: 'small' },
+            { name: 'Medium (112px)', value: 'medium' },
+            { name: 'Large (168px)', value: 'large' },
+          ],
+          default_value: 'medium',
+        },
+        paddingBottom: {
+          type: 'option',
+          options: [
+            { name: 'None', value: 'none' },
+            { name: 'Small (48px)', value: 'small' },
+            { name: 'Medium (112px)', value: 'medium' },
+            { name: 'Large (168px)', value: 'large' },
+          ],
+          default_value: 'medium',
+        },
+        paddingTopMobile: {
+          type: 'option',
+          options: [
+            { name: 'Default (use desktop)', value: '' },
+            { name: 'None', value: 'none' },
+            { name: 'Small (48px)', value: 'small' },
+            { name: 'Medium (112px)', value: 'medium' },
+            { name: 'Large (168px)', value: 'large' },
+          ],
+        },
+        paddingBottomMobile: {
+          type: 'option',
+          options: [
+            { name: 'Default (use desktop)', value: '' },
+            { name: 'None', value: 'none' },
+            { name: 'Small (48px)', value: 'small' },
+            { name: 'Medium (112px)', value: 'medium' },
+            { name: 'Large (168px)', value: 'large' },
+          ],
+        },
+      },
+    };
+
+    const mainComponent = await Storyblok.post(
+      `spaces/${spaceId}/components/`,
+      { component: mainComponentSchema }
+    );
+    console.log('✅ Main component created:', mainComponent.data.component.name);
+
+    // 3. Create demo story
+    const demoStory = {
+      story: {
+        name: 'Demo - Component Name',
+        slug: 'demo-component-name',
+        content: {
+          component: 'page',
+          body: [
+            {
+              component: 'component_name',
+              title: 'Demo Title',
+              items: [
+                {
+                  component: 'sub_component_name',
+                  title: 'Demo Item 1',
+                  description: 'Demo description',
+                },
+              ],
+              paddingTop: 'medium',
+              paddingBottom: 'medium',
+            },
+          ],
+        },
+      },
+    };
+
+    const story = await Storyblok.post(
+      `spaces/${spaceId}/stories/`,
+      demoStory
+    );
+    console.log('✅ Demo story created:', story.data.story.name);
+    console.log(`   URL: https://app.storyblok.com/#!/me/spaces/${spaceId}/stories/0/0/${story.data.story.id}`);
+
+  } catch (error) {
+    console.error('❌ Error:', error.response?.data || error.message);
+    process.exit(1);
+  }
+}
+
+createComponents();
+```
+
+**Update `package.json`:**
+```json
+{
+  "scripts": {
+    "storyblok:setup-[component]": "node scripts/create-[component-name]-storyblok.js"
+  }
+}
+```
+
+### 5. Execute Component Creation
+
+```bash
+npm run storyblok:setup-[component]
+```
+
+**Verify:**
+1. ✅ Components visible in Storyblok Block Library
+2. ✅ Demo story created with sample content
+3. ✅ All fields configured correctly
+4. ✅ Spacing options available
+
+### 6. Documentation Update
+
+Update `STORYBLOK_SETUP.md`:
+
+```markdown
+## [Component Name]
+
+### Description
+[Brief component description]
+
+### Main Component: `component_name`
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| title | Text | Yes | Section title |
+| items | Blocks | Yes | List of items |
+| paddingTop | Option | No | Desktop top spacing |
+| paddingBottom | Option | No | Desktop bottom spacing |
+
+### Sub-Component: `sub_component_name`
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| title | Text | Yes | Item title |
+| description | Text | Yes | Item description |
+| icon | Asset | No | Optional icon |
+| href | Text | No | Link URL |
+
+### Usage
+1. Add component to page body
+2. Configure title and spacing
+3. Add items using the sub-component
+4. Publish and preview
+
+### Demo
+Demo story: `/demo-component-name`
+```
+
+---
+
+## Naming Conventions
+
+### API Identifiers (snake_case)
+- **Main Components**: `quick_actions`, `media_highlight`, `card_slider`
+- **Sub-Components**: `quick_action_item`, `media_card`, `usp_card`
+
+### React Components (PascalCase + "Storyblok")
+- **Main Components**: `QuickActionsStoryblok`, `MediaHighlightStoryblok`
+- **Sub-Components**: `QuickActionItemStoryblok`, `MediaCardStoryblok`
+
+---
+
+## Field Structure Templates
+
+### Main Section Component Schema
+```javascript
+{
+  name: 'Component Name',
+  schema: {
+    title: { type: 'text', required: true },
+    description: { type: 'textarea' },
+    items: { 
+      type: 'bloks',
+      restrict_components: true,
+      component_whitelist: ['sub_component_name'],
+    },
+    layout: {
+      type: 'option',
+      options: [/* layout options */],
+    },
+    // ALWAYS include spacing fields for main components
+    paddingTop: { type: 'option', options: [/* spacing options */] },
+    paddingBottom: { type: 'option', options: [/* spacing options */] },
+    paddingTopMobile: { type: 'option', options: [/* spacing options */] },
+    paddingBottomMobile: { type: 'option', options: [/* spacing options */] },
+  },
+}
+```
+
+### Sub-Component Schema
+```javascript
+{
+  name: 'Sub Component Name',
+  schema: {
+    title: { type: 'text', required: true },
+    description: { type: 'textarea', required: true },
+    icon: { type: 'asset', filetypes: ['images'] },
+    href: { type: 'text' },
+    // Component-specific fields...
+  },
+}
+```
+
+---
+
+## Spacing/Padding Implementation
+
+**CRITICAL**: All main section components MUST include spacing fields.
+
+### Spacing Options (Consistent across all components)
+```javascript
+options: [
+  { name: 'None', value: 'none' },          // 0px
+  { name: 'Small (48px)', value: 'small' }, // py-7
+  { name: 'Medium (112px)', value: 'medium' }, // py-14
+  { name: 'Large (168px)', value: 'large' },   // py-21
+]
+```
+
+### Implementation in Wrapper Component
+```tsx
+const getPaddingClass = (size?: string, defaultSize = 'medium') => {
+  const paddingMap = {
+    'none': '',
+    'small': 'py-7',
+    'medium': 'py-14',
+    'large': 'py-21',
+  };
+  return paddingMap[size || defaultSize] || paddingMap[defaultSize];
+};
+
+const ComponentStoryblok: React.FC<Props> = (props) => {
+  const { paddingTop, paddingBottom, paddingTopMobile, paddingBottomMobile } = props;
+  
+  const desktopPaddingTop = getPaddingClass(paddingTop);
+  const desktopPaddingBottom = getPaddingClass(paddingBottom);
+  const mobilePaddingTop = getPaddingClass(paddingTopMobile, paddingTop);
+  const mobilePaddingBottom = getPaddingClass(paddingBottomMobile, paddingBottom);
+  
+  return (
+    <div className={`
+      ${mobilePaddingTop} ${mobilePaddingBottom}
+      md:${desktopPaddingTop} md:${desktopPaddingBottom}
+    `}>
+      <Component {...transformedProps} />
+    </div>
+  );
+};
+```
+
+---
+
+## Page Development Pattern
+
+### Dynamic Routing Structure
+- Homepage: `app/[locale]/page.tsx` (slug: 'home')
+- Single pages: `app/[locale]/[slug]/page.tsx`
+- Nested pages: `app/[locale]/[slug]/[id]/page.tsx`
+
+### Page Implementation
+```typescript
+import { getStoryBySlug } from '@utils/storyblok';
+import { storyblokComponentMap } from '@utils/helpers/storyblok-mapping';
+import { notFound } from 'next/navigation';
+
+const PageComponent: NextPage<Props> = async ({ params }) => {
+  const storyData = await getStoryBySlug(params.slug);
+  
+  if (!storyData) {
+    notFound();
+  }
+
+  const pageContent = Array.isArray(storyData.content.body) 
+    ? storyData.content.body 
+    : [];
+
+  return (
+    <>
+      {pageContent.map((contentItem) => {
+        const Component = storyblokComponentMap[contentItem.component];
+        return Component 
+          ? <Component key={contentItem._uid} {...contentItem} />
+          : null;
+      })}
+    </>
+  );
+};
+
+export default PageComponent;
+```
+
+### SEO Metadata
+```typescript
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const storyData = await getStoryBySlug(params.slug);
+  
+  if (!storyData?.content.SEO) {
+    return {};
+  }
+
+  const seo = storyData.content.SEO;
+  
+  return {
+    title: seo.title,
+    description: seo.description,
+    openGraph: {
+      title: seo.og_title || seo.title,
+      description: seo.og_description || seo.description,
+      images: seo.og_image ? [{ url: seo.og_image }] : undefined,
+    },
+  };
+}
+```
+
+---
+
+## Success Checklist
+
+- [ ] Storyblok TypeScript types created
+- [ ] Storyblok wrapper component functional
+- [ ] Component registered in both mapping files (`lib/storyblok-components.ts` AND `utils/helpers/storyblok-mapping.tsx`)
+- [ ] Spacing fields implemented (paddingTop, paddingBottom, mobile variants)
+- [ ] Script created and added to package.json
+- [ ] Script executed successfully
+- [ ] Components visible in Storyblok Block Library
+- [ ] Demo story created with sample content
+- [ ] Documentation updated in `STORYBLOK_SETUP.md`
+- [ ] Component renders correctly in Storyblok preview
+- [ ] Verified component mapping works in page rendering
+
+---
+
+## Delivery Summary Template
+
+When Storyblok integration is completed, ALWAYS provide:
+
+```markdown
+## ✅ Storyblok Integration Complete
+
+### 🎨 Figma Component
+- Component: [ComponentName]
+- Type: [Main/Sub]
+- Files: [list of created files]
+
+### ⚛️ React Components
+- Figma component: `[component-name].component.tsx`
+- Storyblok wrapper: `[component-name]-storyblok.component.tsx`
+- TypeScript types: `types/storyblok/[component-name].types.ts`
+
+### 🏗️ Storyblok CMS
+- Space ID: [SPACE_ID]
+- Main component: `component_name`
+- Sub-components: `sub_component_name`
+- Demo story: [Demo URL]
+
+### 📄 Registration
+- ✅ `lib/storyblok-components.ts` updated
+- ✅ `utils/helpers/storyblok-mapping.tsx` updated  
+- ✅ `components/sections/index.ts` updated
+
+### 🔧 Usage Instructions
+1. Open Storyblok Block Library
+2. Add component to page body
+3. Configure fields and spacing
+4. Publish and preview
+
+### 📚 Next Steps
+- Test component in different page contexts
+- Create additional demo content
+- Train content creators on usage
+```
+
+---
+
+## Common Issues & Troubleshooting
+
+### Component Not Rendering
+- ✅ Check both mapping files are updated
+- ✅ Verify API identifier matches exactly (snake_case)
+- ✅ Ensure component is exported from sections/index.ts
+
+### Spacing Not Working
+- ✅ Verify spacing fields exist in Storyblok schema
+- ✅ Check getPaddingClass implementation in wrapper
+- ✅ Ensure mobile values fallback to desktop correctly
+
+### Script Fails
+- ✅ Verify all environment variables are set
+- ✅ Check Storyblok Management Token has correct permissions
+- ✅ Ensure Space ID is correct
+
+---
+
+## References
+
+- **Figma Workflow**: @figma.mdc
+- **Typography**: @typography.mdc
+- **Spacing**: @spacing.mdc
+- **General Coding Standards**: @general.mdc

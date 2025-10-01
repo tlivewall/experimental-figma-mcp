@@ -5,11 +5,14 @@
 
 import React from 'react';
 import QuickActionsStoryblok from '@components/sections/quick-actions/quick-actions-storyblok.component';
+import CardSliderStoryblok from '@components/sections/card-slider/card-slider-storyblok.component';
 
 export const storyblokComponentMap: Record<string, React.ComponentType<any>> = {
   // Add components here as they are created
   quick_actions: QuickActionsStoryblok,
   'Quick Actions': QuickActionsStoryblok, // Storyblok component name with spaces
+  card_slider: CardSliderStoryblok,
+  'Card Slider': CardSliderStoryblok,
   
   // Example mappings from handoff:
   // faq: Faq,

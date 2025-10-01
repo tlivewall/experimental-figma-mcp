@@ -14,7 +14,8 @@
     "prepare": "cd .. && node -e \"if (process.env.NODE_ENV === 'development'){process.exit(1)} \" || husky install frontend/.husky",
     "lint-staged": "lint-staged",
     "analyze": "cross-env ANALYZE=true next build",
-    "storyblok:setup-quick-actions": "node scripts/create-quick-actions-storyblok.js"
+    "storyblok:setup-quick-actions": "node scripts/create-quick-actions-storyblok.js",
+    "storyblok:setup-card-slider": "node scripts/create-card-slider-storyblok.js"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
@@ -35,6 +36,7 @@
     "class-variance-authority": "^0.7.1",
     "classnames": "2.5.1",
     "date-fns": "^4.1.0",
+    "embla-carousel-react": "^8.6.0",
     "lodash": "^4.17.21",
     "luxon": "3.7.2",
     "next": "^15.5.4",
@@ -42,7 +44,6 @@
     "next-nprogress-bar": "^2.4.7",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "storyblok-js-client": "^7.1.4",
     "winston": "3.17.0"
   },
   "devDependencies": {
@@ -69,6 +70,7 @@
     "lint-staged": "^16.2.0",
     "postcss": "^8.5.6",
     "prettier": "3.6.2",
+    "storyblok-js-client": "^7.1.4",
     "tailwindcss": "^4.1.13",
     "typescript": "5.9.2",
     "typescript-eslint": "^8.44.1"

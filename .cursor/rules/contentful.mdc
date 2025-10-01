@@ -1,6 +1,9 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
+# ⚠️ DISABLED - Contentful Integration
+# This file is currently disabled (alwaysApply: false)
+# Enable only when Contentful integration is needed
 # Contentful Component Workflow Rules
 
 ## Trigger Keywords

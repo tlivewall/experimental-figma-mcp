@@ -45,10 +45,10 @@ alwaysApply: true
     ### UI and Styling
     - Use modern UI frameworks (e.g., Tailwind CSS, Shadcn UI, Radix UI) for styling.
     - Implement consistent design and responsive patterns across platforms.
-    - Fixed Pixel Values: Always remember our Tailwind configuration uses fixed pixel values for spacing utilities (m-*, p-*, w-*, h-*, gap-*, space-x-*, space-y-*) instead of the default rem values. Example; p-4 translates to padding: 32px;
-    - Reference tailwind.config.js: Explicitly refer to the spacing scale defined in your tailwind.config.js for all dimensions.
-    - No Hardcoded Pixels: Do not use hardcoded pixel values in inline styles or custom CSS when a corresponding Tailwind spacing utility exists.
-    - Responsive Spacing: Apply responsive prefixes (sm:, md:, lg:, xl:) with our defined spacing scale for responsive designs (e.g., md:p-4).
+    - Follow project's custom Tailwind spacing scale (see @spacing.mdc for conversions)
+    - Use project's Typography component for all text (see @typography.mdc for usage)
+    - Never use hardcoded pixel values when Tailwind utilities exist
+    - Apply responsive prefixes (sm:, md:, lg:, xl:) with mobile-first approach
 
     ### State Management and Data Fetching
     - Use modern state management solutions (e.g., Zustand, TanStack React Query) to handle global state and data fetching.

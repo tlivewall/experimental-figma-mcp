@@ -1,0 +1,120 @@
+---
+description: Quick reference to Typography component usage
+alwaysApply: true
+---
+
+# Typography Component - Quick Reference
+
+## Rule: ALWAYS use Typography component for ALL text
+
+**NEVER use inline text styling with Tailwind classes!**
+
+## Quick Usage
+
+```tsx
+import Typography from 'components/ui/typography/typography.component';
+
+<Typography 
+  type="h3" 
+  size="body16" 
+  weight="semibold" 
+  color="black"
+  className="mb-1"
+>
+  Your Text
+</Typography>
+```
+
+## Common Patterns
+
+```tsx
+// Section titles
+<Typography type="h2" size="body16" weight="bold" color="gray">
+  Section Title
+</Typography>
+
+// Item titles  
+<Typography type="h3" size="body16" weight="semibold" color="black">
+  Item Title
+</Typography>
+
+// Body text / descriptions
+<Typography type="p" size="body14" color="gray">
+  Description text
+</Typography>
+
+// Button text (when using Typography)
+<Typography type="span" size="default" weight="bold" color="black">
+  Button Text
+</Typography>
+```
+
+## Size Naming Convention
+
+- Use `body[size]` format: `body14`, `body16`, `body18`, `body20`, etc.
+- Always based on pixel values from Figma
+- Desktop: defined in `size` property
+- Mobile: defined in `mobileSize` property
+
+## Before Creating Component
+
+1. ✅ Extract typography specs from Figma design
+2. ✅ Check if sizes/weights/colors exist in `typography.variants.data.tsx`
+3. ✅ Add missing variants following `body[size]` naming
+4. ✅ Never use Tailwind text-*, font-*, leading-* classes directly
+
+## Adding New Typography Variants
+
+When Figma specifies typography not in the project:
+
+```tsx
+// 1. Add to typography.variants.data.tsx
+size: {
+  body16: "md:text-[16px] md:leading-[24px]",  // Desktop
+},
+mobileSize: {
+  body16: "text-[16px] leading-[24px]",        // Mobile
+},
+color: {
+  black: "text-[#000017]",  // From Figma color specs
+  gray: "text-[#666674]",
+},
+weight: {
+  semibold: "font-semibold",  // weight: 600
+},
+```
+
+## Common Mistakes to Avoid
+
+```tsx
+// ❌ Don't do this
+<h3 className="text-lg font-bold text-black">Title</h3>
+<span className="text-sm text-gray-600">Text</span>
+<Typography size="body16" className="text-lg font-bold">  // Conflicting styles
+
+// ✅ Do this instead
+<Typography type="h3" size="body16" weight="bold" color="black">Title</Typography>
+<Typography type="span" size="body14" color="gray">Text</Typography>
+<Typography type="h3" size="body16" weight="bold" color="black" className="mb-2">
+```
+
+## Props Reference
+
+- **type**: Semantic HTML element (`h1`, `h2`, `h3`, `p`, `span`, etc.)
+- **size**: Typography size variant (`body14`, `body16`, etc.)
+- **weight**: Font weight (`default`, `semibold`, `bold`, etc.)
+- **color**: Text color (`black`, `gray`, `white`, etc.)
+- **className**: Additional Tailwind classes (spacing, alignment only - NO typography styles!)
+
+## Complete Documentation
+
+For complete typography implementation guide, see:
+- `figma-typography-rule.mdc` (190 lines with full details)
+- `typography.variants.data.tsx` (source of defined variants)
+
+## Remember
+
+- **ALL text must use Typography component**
+- **NO hardcoded text styles in className**
+- **Always specify type, size, weight, and color props**
+- **Add new variants when Figma specs require them**

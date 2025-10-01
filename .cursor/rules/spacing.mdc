@@ -1,0 +1,68 @@
+---
+description: Quick reference to custom Tailwind spacing scale
+alwaysApply: true
+---
+
+# Custom Tailwind Spacing Scale - Quick Reference
+
+## ⚠️ CRITICAL: This project uses CUSTOM spacing scale
+
+**NEVER assume default Tailwind spacing values!**
+
+## Quick Conversion Table
+
+| Figma (px) | Tailwind Class | Actual Value |
+|------------|----------------|--------------|
+| 4px        | `0.5`          | 4px          |
+| 8px        | `1`            | 8px          |
+| 12px       | `1.5`          | 12px         |
+| 16px       | `2`            | 16px         |
+| 20px       | `2.5`          | 20px         |
+| 24px       | `3`            | 24px         |
+| 28px       | `3.5`          | 28px         |
+| 32px       | `4`            | 32px         |
+| 36px       | `5`            | 36px         |
+| 40px       | `6`            | 40px         |
+| 48px       | `7`            | 48px         |
+| 56px       | `8`            | 56px         |
+| 64px       | `9`            | 64px         |
+| 72px       | `10`           | 72px         |
+| 80px       | `11`           | 80px         |
+| 96px       | `12`           | 96px         |
+| 128px      | `14`           | 128px        |
+
+## Common Examples
+
+```tsx
+// ✅ Correct conversions
+<div className="w-3 h-3">     // 24px icons
+<div className="w-4 h-4">     // 32px icons
+<div className="p-2">         // 16px padding
+<div className="gap-3">       // 24px gap
+<div className="m-4">         // 32px margin
+
+// ❌ Common mistakes (using default Tailwind assumptions)
+<div className="w-6 h-6">     // This is 40px, NOT 24px!
+<div className="p-4">         // This is 32px, NOT 16px!
+<div className="gap-6">       // This is 40px, NOT 24px!
+```
+
+## Workflow
+
+1. Extract pixel value from Figma
+2. Look up in table above
+3. Use corresponding Tailwind class
+4. Verify in browser DevTools
+
+## Complete Documentation
+
+For full spacing scale documentation, error examples, and prevention strategies, see:
+- `custom-tailwind-spacing-rule.mdc` (complete guide with 195 lines)
+- `tailwind.config.js` (source of truth)
+
+## Remember
+
+- **ALWAYS** reference this table or `tailwind.config.js`
+- **NEVER** use Tailwind default assumptions
+- **VERIFY** actual pixel values match Figma specs
+- **TEST** in browser to confirm conversions
